@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-09-26
+
 ### Added
 
 - `cuelabs-system-design` skill: designs a product's system from a PRD, a
