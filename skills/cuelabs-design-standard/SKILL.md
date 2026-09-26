@@ -14,8 +14,9 @@ methods consistent.
 - Read [references/figma-and-design.md](references/figma-and-design.md) for
   design documentation, variables, components, states, prototype wiring,
   content integrity, and Figma-specific constraints.
-- Read [references/qa-loop.md](references/qa-loop.md) when planning or closing
-  design and implementation audit/fix/re-verify rounds.
+- Use the "Design QA loop" rule in `figma-and-design.md` when planning or
+  closing audit/fix/re-verify rounds. For multi-agent orchestration and merge
+  gates, activate `$cuelabs-engineering-standards` when installed.
 
 ## Workflow
 

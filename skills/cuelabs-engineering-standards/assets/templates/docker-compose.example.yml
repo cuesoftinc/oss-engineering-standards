@@ -14,6 +14,13 @@ services:
   # api-<service>:
   #   build: ./api/<service>
   #   ...
+  #
+  # Multi-service pipelines (e.g. a Node gateway + a Python processing
+  # service, connected by Aiven Kafka rather than a direct call) add a block
+  # per real service the same way — see repository-and-services.md's
+  # "Multi-service pipelines" section. Kafka itself is never a compose
+  # service; it's the managed Aiven instance, wired via KAFKA_BROKERS/
+  # KAFKA_USERNAME/KAFKA_PASSWORD/KAFKA_SSL_CA in each service's environment.
 
   web:
     image: cuesoft/REPO-web:latest

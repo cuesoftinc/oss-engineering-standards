@@ -14,7 +14,7 @@ that do not exist yet.
 - Read [references/cloud-and-ci.md](references/cloud-and-ci.md) for CueLABS
   cloud policy, GitHub Actions, release gating, versions, and fleet parity.
 - Read [references/containers-and-deploy.md](references/containers-and-deploy.md)
-  for Docker, Compose, ports, Helm, Terraform, and cleanup.
+  for Docker, Compose, ports, Helm, and Terraform.
 - Read
   [references/telemetry-and-environment.md](references/telemetry-and-environment.md)
   for OpenTelemetry and environment-variable conventions.

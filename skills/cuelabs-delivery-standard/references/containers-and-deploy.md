@@ -41,15 +41,22 @@ Each repo has a root `docker-compose.yml` and a compose-driven `Makefile`
 - **Python services** — core `assets/templates/Dockerfile.python`: `python:3.12-slim`,
   non-root uid 10001, PORT-aware 127.0.0.1 `/health` healthcheck with a long
   start period (model loads), `uvicorn app.main:app`.
+- **Node API services (NestJS)** — core `assets/templates/Dockerfile.node`:
+  `node:24-slim` (glibc, same fleet Node single-truth as `web`), multi-stage
+  (`npm ci` → `npm run build` → `npm ci --omit=dev` for the runtime layer),
+  non-root `node` user, PORT-aware `/health` HEALTHCHECK, `node dist/main.js`.
+  Distinct from `Dockerfile.web` (that one serves the Next.js frontend).
 - **gRPC-Web repos** — run Envoy in compose (image pinned, config mounted from
   `deploy/helm/envoy/envoy.yaml`, backend network-aliased to the cluster
-  target); Envoy takes the next port slot (e.g. upstat :8082) and the web image
+  target); Envoy takes the next free port slot after the APIs and the web image
   gets `NEXT_PUBLIC_ENVOY_URL` as a build arg.
 
 **Port convention (parity across repos):** so muscle memory carries between
 services, every repo publishes the same host ports — `api/common` → **8080**,
-`web` → **3000**, and each additional API increments from there (**8081**, 8082, …;
-e.g. apparule's `api/measure` → 8081). Compose sets `PORT` and the published port
+`web` → **3000**, and each additional API increments from there in the order
+it was added (**8081**, 8082, …; a two-service pipeline takes 8081 for the
+gateway and 8082 for the processor). The product records its assignments in
+`docs/decisions.md`. Compose sets `PORT` and the published port
 to the same value, and the web image's `NEXT_PUBLIC_BASE_URL` build arg targets
 `http://localhost:8080`.
 
@@ -66,21 +73,3 @@ Gotchas that cost real time:
   belongs in cookies, written and read by the same names.
 - All healthchecks (web and APIs) target `127.0.0.1`, never `localhost`
   (IPv6 resolution causes false-unhealthy containers).
-
-## Cleanup rules (when standardizing)
-Remove (safe — not application code):
-- **Non-canonical GitHub Actions workflow files**: preserve the ratified
-  `.github/workflows/build-and-test.yml`, the deferred tag-gated `release.yml`
-  when present, and ratified surface workflows such as Apparule's
-  `mobile-goldens.yml` and `mobile-e2e.yml`; remove obsolete, duplicate,
-  misplaced, or unratified workflow files.
-- Buggy/one-off scripts (e.g. old `refactor-structure.sh`).
-- Stale planning/aspirational docs that no longer match reality.
-- Generated artifacts committed by mistake (e.g. `output_landmarks.jpg`),
-  committed build binaries, `tmp/` output.
-- Dead `.gitkeep` files in directories that now hold real content.
-
-Never remove:
-- **Application code**, service assets/models, or test fixtures.
-- Placeholder `.gitkeep`s in genuinely-empty standard dirs (`deploy/*`,
-  `mobile/android`, `mobile/ios`, `scripts`).

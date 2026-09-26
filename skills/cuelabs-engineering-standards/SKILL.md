@@ -17,8 +17,14 @@ is active, planned, or intentionally absent.
 - **Plan**: produce an ordered change plan and explicit assumptions without
   changing files.
 - **Apply**: make the requested standardization changes, then verify them.
-- **Bootstrap**: create only the surfaces the user requested; never create empty
-  application placeholders.
+- **Bootstrap**: start a new product with the bundled script's `init`
+  operation, then create only the surfaces the user requested; never create
+  empty application placeholders. Follow "Procedure B" in
+  `references/repository-and-services.md`. Before running `init`, ask the
+  user for anything they have not given: the product slug (you may suggest
+  one from the directory name), display name, profile, and each surface's
+  status. Before filling a product decision, propose a value with a one-line
+  reason and wait for the user's answer.
 - **Verify**: run deterministic checks and report evidence.
 
 Default to **audit** for review requests. Use **apply** only when the user asks
@@ -34,6 +40,9 @@ to change, fix, bootstrap, or standardize the repository.
   policy.
 - Read [references/project-manifest.md](references/project-manifest.md) before
   authoring or repairing `.cuelabs/project.yaml`.
+- Read [references/product-decisions.md](references/product-decisions.md)
+  when bootstrapping a product or auditing whether its per-product values
+  (slug, default theme, ports, data store, and so on) are recorded.
 - Read [references/qa-and-orchestration.md](references/qa-and-orchestration.md)
   when coordinating multiple repositories or closing a QA/merge loop.
 - Read [references/recommended-versions.md](references/recommended-versions.md)
@@ -53,6 +62,8 @@ For a focused surface, activate the matching installed skill:
 - `$cuelabs-mobile-standard`
 - `$cuelabs-design-standard`
 - `$cuelabs-delivery-standard`
+- `$cuelabs-system-design` (whole-system design, service breakdown, and
+  architecture diagrams)
 
 Do not duplicate a focused skill's full guidance into the working context
 unless the task actually touches that surface.
@@ -108,6 +119,8 @@ unless the task actually touches that surface.
   or project manifest with a shared template.
 - Never present product-specific policy as a portable OSS requirement.
 - Never silently resolve an explicit documented deviation.
+- Never record a product decision (`P-nn` value) or manifest identity the user
+  has not confirmed; leave it `—` and list it as an open decision.
 - Keep shared files byte-identical only when the standard marks them shared;
   keep product variation in manifests, scripts, or documented extension points.
 

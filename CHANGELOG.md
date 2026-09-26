@@ -7,6 +7,95 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `cuelabs-system-design` skill: designs a product's system from a PRD, a
+  repository, or a description, following the language-by-role pipeline
+  rule. It decides the services (including when to split a processing
+  service versus run worker pools), how they communicate, and who owns each
+  store, and adds reusable patterns: upload tickets, claim-check, outbox,
+  versioned results, and raw provider events. It writes
+  `docs/system-design.md` and renders a self-contained diagram page
+  (`scripts/render_design.py`, stdlib only) with Excalidraw and Mermaid copy
+  buttons, a layout checker, and an artifact mode for hosts that publish
+  pages.
+- Multi-service pipeline canon: a repo may carry more than one non-`common`
+  service when a real multi-stage pipeline exists (gateway + processing),
+  with Go staying the CRUD/data owner, a processing service owning every
+  decision with no persistence of its own, and a gateway service staying
+  thin — expendit's `api/intake` (Node) + `api/process` (Python) is the
+  reference case.
+- Node API service standard (NestJS, `api/<service>`, distinct from `web`):
+  folder layout, file/folder naming row, `Dockerfile.node` +
+  `dockerignore.node` templates, and a NestJS 11.x version pin.
+- Pub/sub (Aiven Kafka) documented as a standardized transport alongside
+  gRPC and HTTP/JSON, with fleet-wide `KAFKA_BROKERS`/`KAFKA_USERNAME`/
+  `KAFKA_PASSWORD`/`KAFKA_SSL_CA` env names — chosen over gRPC s2s for
+  expendit/apparule/upstat's pipeline because it survives a Cloud Run
+  consumer restart with zero message loss (verified against a live Aiven
+  instance), where a gRPC channel can silently zombie on scale-to-zero.
+  Kafka consumers must run as a Cloud Run worker pool, or as a service with
+  `min-instances >= 1` and instance-based billing, since a message does not
+  wake a scaled-to-zero instance.
+- gRPC s2s client resilience on Cloud Run: a deadline on every call, a real
+  retry policy (bounded attempts, backoff, `UNAVAILABLE` only) for
+  idempotent methods, and keepalive for active calls. `waitForReady: false`
+  is no longer described as a retry policy, and idle dead-connection
+  detection is no longer promised.
+- Serverless functions are now explicitly scoped to probe/health-check
+  endpoints only; real logic always lives in a containerized `api/<service>`.
+- `organization-policy.md` picked up the gRPC s2s client resilience note
+  that `cloud-and-ci.md` already had (the two copies had drifted).
+- `product-decisions.md`: the checklist of values each product chooses
+  for itself (slug, default theme, Playwright port, service ports, data
+  store, settings IA, date idiom, KYC tier contents, and more), each with a
+  stable `P-nn` ID, recorded in the product's `docs/decisions.md`.
+- "Shared ecosystem services" table in `organization-policy.md`: the
+  observability gateway, analytics events API, identity project, and
+  infrastructure are named by role and contract; the table is the only place
+  a providing product is named.
+- `validate_catalog.py` fails when a product name appears under `skills/`
+  outside that table, or when a reference carries a dated ratification note.
+- `cuelabs_standard.py init --name <product> --surface NAME=STATUS`: starts a
+  new product from an empty repository by writing `.cuelabs/project.yaml`
+  and, for the `cuelabs` profile, a `docs/decisions.md` seeded with the
+  Standard parameters table (`assets/templates/decisions.md`). It validates
+  the manifest before writing and never overwrites either file.
+- "Procedure B — bootstrap a new repo" is now a full walkthrough, from
+  `git init` through `init`, parameter decisions, `apply`, per-surface
+  scaffolding, delivery, and `verify`; the README shows the quick start.
+- Trigger evaluation cases for starting a new product.
+- Bootstrapping asks before it decides: the engineering skill confirms the
+  product slug, display name, profile, and surface statuses with the user
+  before `init`, proposes each `P-nn` value with a reason and records it only
+  once confirmed, and reports unconfirmed values as open decisions.
+
+### Changed
+
+- References no longer carry duplicate copies of the same canon. Each topic
+  has one owner: cloud/CI, containers/deploy, and telemetry/environment live
+  in `cuelabs-delivery-standard`; API conventions, docs contracts, and
+  analytics live in `organization-policy.md`; the design documentation
+  standard lives in `cuelabs-design-standard`; orchestration and QA loops
+  live in `qa-and-orchestration.md`; changelog discipline lives in
+  `repository-and-services.md`. The engineering skill keeps short summaries
+  that point at the owning skill, so it still works when installed alone.
+- The skills are product-agnostic, so they can bootstrap a brand-new
+  product. Product names, per-product values, incident stories, dated
+  ratification notes, and internal decision codes are gone from every
+  reference; each rule now states its contract directly instead of pointing
+  at one product's implementation. History stays in this changelog.
+- Per-product values became product decisions: the marketing product slot,
+  default theme, Playwright port, settings IA, date idiom, and service port
+  assignments are recorded by each product (see `product-decisions.md`).
+- The Playwright port rule now requires a port in 3100–3399 that no sibling
+  product uses.
+
+### Removed
+
+- `cuelabs-design-standard/references/qa-loop.md`, an identical copy of
+  `qa-and-orchestration.md`.
+
 ## [2.0.1] - 2026-07-23
 
 ### Fixed

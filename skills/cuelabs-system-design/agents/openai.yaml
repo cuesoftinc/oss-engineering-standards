@@ -1,0 +1,4 @@
+interface:
+  display_name: "CueLABS System Design"
+  short_description: "Design a product's backend and publish its diagrams"
+  default_prompt: "Use $cuelabs-system-design to design this product's system and publish the document and diagram page."

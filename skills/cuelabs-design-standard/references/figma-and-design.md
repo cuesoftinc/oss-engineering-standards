@@ -12,20 +12,14 @@ foundations block** — spacing scale (4px grid: 4/8/12/16/24/32/48/64),
 breakpoints (640/768/1024/1280/1536), motion durations (120/200/250/300ms) +
 easings, z-index layers (0/10/20/30/40/50), **Lucide** icons, focus ring
 (2px accent, offset 2, :focus-visible). The foundations rows are identical
-across products — changing one is an ecosystem PR touching all three.
+across products — changing one is an ecosystem PR touching every product.
 
-**Docs describe the current system** (ratified 2026-07-19): design docs are
-a snapshot of what is on `main` NOW, not a changelog. Decision markers
-(`[Decided …]` / `[Directive …]`) and as-built notes describing the current
-construction stay; archaeology does not — once a replacement lands, clauses
-like "replaces X", "drops Y", "formerly Z", references to retired legacy
-trees, or pointers at Deprecated-page parking are removed in the same pass
-(git history and PRs are the changelog).
+**Docs describe the current system**: design docs are a snapshot of what
+is on `main` now, not a changelog; git history and PRs are the changelog.
 
 ### Figma component-library standard
 
-How each product's Figma library is built (ratified from the
-apparule/expendit/upstat library builds, 2026-07):
+How each product's Figma library is built:
 
 - **Token pairing** — every accent/brand fill token pairs with an
   `on-accent`/`on-brand` color token for the ink rendered on it. Raw hex is
@@ -43,14 +37,15 @@ apparule/expendit/upstat library builds, 2026-07):
 - **Naming** — PascalCase component sets; lowercase variant properties
   (`kind`, `size`, `state`, …); icons `icon/<lucide-slug>`, brand glyphs
   `icon/brand-<name>` (brand marks keep their official colors, unbound).
-  The ecosystem auth CTA component is **`GoogleAuthButton`** (X-1).
+  The ecosystem auth CTA component is **`GoogleAuthButton`** (Google-only
+  sign-in).
 - **Engineering practices** — auto-layout everywhere; every color
   variable-bound; tint overlays are instance-safe rects using **node-level**
   opacity (Figma drops paint-level opacity on variable-bound instance
   fills); component descriptions carry the MI/motion notes and **[Decided]**
   mappings that apply to them; OpenType tabular figures (`tnum`) must be
   toggled manually — the plugin API cannot set font features. Two more
-  API gotchas [2026-07-20]: the `description` write path HTML-escapes
+  API gotchas: the `description` write path HTML-escapes
   quotes/angle-brackets/ampersands at storage (write entity-safe —
   typographic quotes, no `<` or `&`), and page enumeration must use a
   read-only `figma.root.children` call (the no-nodeId listing returns
@@ -67,10 +62,8 @@ apparule/expendit/upstat library builds, 2026-07):
   announced at GA"), no invented SLAs or research statistics, and no
   implied customer endorsements. Product claims are framed as
   targets/capabilities ("we target ±2 cm"), demo data is clearly synthetic,
-  and license claims match the repo `LICENSE` (all three products: MIT).
-  GitHub badges render as glyph + "Star" with **no count**. (Ratified from
-  the 2026-07-18 sweep — all three products had independently violated
-  this.)
+  and license claims match the repo `LICENSE` (CueLABS™ products: MIT).
+  GitHub badges render as glyph + "Star" with **no count**.
 - **Screen states** — every data-driven screen template ships **default +
   empty + loading** frames: empty uses the `EmptyState` component with real
   first-run copy (plus a demo-data toggle where the product specs one);

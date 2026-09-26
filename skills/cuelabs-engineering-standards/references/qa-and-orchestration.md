@@ -1,7 +1,7 @@
-## Orchestration & QA-loop standard
+# Orchestration and QA loops
 
-How CueLABS™ work is executed with an orchestrator + subagents (ratified
-2026-07-18; applies to design, web, and future phases):
+How CueLABS™ work is executed with an orchestrator + subagents (applies to
+design, web, and future phases):
 
 - **Roles** — one orchestrator + one agent per product/lane. The
   orchestrator NEVER builds: it scopes missions, adjudicates conflicts,
@@ -21,27 +21,25 @@ How CueLABS™ work is executed with an orchestrator + subagents (ratified
   each other in one worktree (restart-resume races), they partition the
   mission via an UNTRACKED ledger file (`COORDINATION-<mission>.local.md`:
   who owns which items, endgame owner), honor it, and delete it before
-  the PR. Field-proven 2026-07-20 (Wave A: twin took items 1–3, resume
-  took 4–6, zero lost work). Never assume a "killed" twin is dead —
-  verify via processes/mtimes before taking over its endgame.
+  the PR. Never assume a "killed" twin is dead — verify via
+  processes/mtimes before taking over its endgame.
 - **Durable-state-first** — git branches/PRs, Figma files, and docs are
   the real state; agent transcripts are disposable. Agents must design
   work so any successor can resume from the canvas/tree alone: verify
   `git branch --show-current` before every commit (trees are shared),
   stage explicitly by path, prefer many small commits/calls, use detached
   worktrees when touching a repo another agent holds. **Branch fresh,
-  land clean** (ratified 2026-07-19): `git fetch origin` immediately
-  before creating any branch (always off the just-fetched
-  `origin/main`), and when a sibling PR merges while yours is open,
-  merge `origin/main` into your branch before the final push —
-  MERGEABLE is part of the merge gate, and conflict resolution follows
-  the current-docs rule. On process
-  restarts/session limits: resume from transcript when possible; when a
-  transcript is lost or too bloated to resume, spawn a fresh agent with a
-  context handoff and verify-then-fix (idempotent) instructions.
+  land clean**: `git fetch origin` immediately before creating any branch
+  (always off the just-fetched `origin/main`), and when a sibling PR merges
+  while yours is open, merge `origin/main` into your branch before the final
+  push — MERGEABLE is part of the merge gate, and conflict resolution follows
+  the current-docs rule. On process restarts/session limits: resume from
+  transcript when possible; when a transcript is lost or too bloated to
+  resume, spawn a fresh agent with a context handoff and verify-then-fix
+  (idempotent) instructions.
 - **Model policy (split fleet)** — top-tier models for open-ended
   builders, QA auditors, root-cause debugging, and fidelity judgment;
-  Sonnet-class models for pre-adjudicated mechanical work (docs writers
+  mid-tier models for pre-adjudicated mechanical work (docs writers
   executing digests, fix-list executors with per-item node/file IDs +
   prescribed fixes, scripted sweeps, monitors). When in doubt, top tier.
   The QA loops are the safety net that makes downshifting cheap.
@@ -55,37 +53,33 @@ How CueLABS™ work is executed with an orchestrator + subagents (ratified
   claim; loops converge at clean or nits-only. Lenses by phase: design =
   completeness/content/polish (+ prototype graph BFS); web =
   Figma-fidelity (screenshot + token/geometry vs the Figma files) +
-  functional (unit/integration/e2e journeys mirroring design.md §8.4).
+  functional (unit/integration/e2e journeys mirroring `design.md`'s
+  prototype journeys).
 - **Merge gates** — an implementation PR merges only when: CI fully green
   (external content-sync statuses don't count either way) · queued
   standardization corrections are folded in · the cross-repo parity diff
   is clean (workflows byte-identical, scripts/layout/naming uniform) ·
   QA-loop findings for the stage are resolved or adjudicated. Every
-  resolved divergence is codified HERE in the same pass (the
+  resolved divergence is codified in this standard in the same pass (the
   "standardize constantly" rule) so drift becomes a detectable violation.
-- **User-reported findings are CLASSES (ratified 2026-07-20)** — a
-  defect reported live on one product is never closed as a spot fix:
-  before the round ends, every sibling product is swept for the same
-  class (same construction or the analogous surface) and each gets an
-  explicit fix or a recorded clean verdict with evidence. Docs and
-  Figma masters are updated in the same round as the code fix — the
-  three never diverge for longer than one PR cycle.
-- **Checkout & push discipline (field-proven 2026-07-20)** — agent
-  lane work NEVER happens in a repo's main checkout: lanes always use
-  detached worktrees; the main checkout stays on `main` (a lane that
-  left the main checkout on a feature branch with dirty files nearly
-  lost the work to a restart, and holds ports/tools other lanes need).
-  Push after EVERY commit — host restarts are frequent enough that
-  unpushed commits and uncommitted worktree state are the only real
-  data-loss vector we've hit; remotes are the durable state. Before
-  declaring any prior lane's work lost, VERIFY remotes and worktrees
-  first — three "restart, start fresh" resumes in one day turned out
-  to have fully-survived branches. **Worktree removal is part of the
-  merge gate (user directive 2026-07-21)**: when a lane's PR merges,
-  its worktree is removed in the same step — never left for a later
-  sweep (accumulated worktrees with node_modules/.next filled the
-  host's disk to zero twice; a forgotten worktree also hid an
-  unmerged docs commit for a day). Heavy lanes also cap CONCURRENT
-  build worktrees at two fleet-wide — each npm ci + next build costs
-  ~2GB of disk and enough memory to crash the host.
-
+- **User-reported findings are CLASSES** — a defect reported live on one
+  product is never closed as a spot fix: before the round ends, every
+  sibling product is swept for the same class (same construction or the
+  analogous surface) and each gets an explicit fix or a recorded clean
+  verdict with evidence. Docs and Figma masters are updated in the same
+  round as the code fix — the three never diverge for longer than one PR
+  cycle.
+- **Checkout & push discipline** — agent lane work NEVER happens in a
+  repo's main checkout: lanes always use detached worktrees; the main
+  checkout stays on `main` (a lane that leaves it on a feature branch with
+  dirty files risks losing the work to a restart, and holds ports/tools
+  other lanes need). Push after EVERY commit — unpushed commits and
+  uncommitted worktree state are the real data-loss vector on restart;
+  remotes are the durable state. Before declaring any prior lane's work
+  lost, VERIFY remotes and worktrees first. **Worktree removal is part of
+  the merge gate**: when a lane's PR merges, its worktree is removed in the
+  same step — never left for a later sweep (accumulated worktrees with
+  `node_modules`/`.next` exhaust disk, and a forgotten worktree can hide
+  unmerged commits). Heavy lanes cap CONCURRENT build worktrees at two
+  fleet-wide — each `npm ci` + `next build` costs ~2GB of disk and enough
+  memory to destabilize the host.

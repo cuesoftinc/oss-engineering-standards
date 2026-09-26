@@ -2,6 +2,26 @@
   "skills": {
     "cuelabs-engineering-standards": [
       {
+        "prompt": "Start a brand-new CueLABS product repository from scratch.",
+        "expect": "trigger"
+      },
+      {
+        "prompt": "Set up the project manifest and decisions register for our new product.",
+        "expect": "trigger"
+      },
+      {
+        "prompt": "Which values does a new product have to decide before building its web app?",
+        "expect": "trigger"
+      },
+      {
+        "prompt": "Initialize a new npm package for this utility library.",
+        "expect": "do-not-trigger"
+      },
+      {
+        "prompt": "Should a new product start with the base profile or the cuelabs profile?",
+        "expect": "ambiguous"
+      },
+      {
         "prompt": "Audit this repository against CueLABS standards.",
         "expect": "trigger"
       },
@@ -19,6 +39,26 @@
       },
       {
         "prompt": "Should this repository adopt the shared Makefile?",
+        "expect": "ambiguous"
+      },
+      {
+        "prompt": "Bootstrap a Node API gateway service alongside our existing Go backend.",
+        "expect": "trigger"
+      },
+      {
+        "prompt": "How should we name a second processing service we are adding to this repo?",
+        "expect": "trigger"
+      },
+      {
+        "prompt": "Write the unit tests for this NestJS controller.",
+        "expect": "do-not-trigger"
+      },
+      {
+        "prompt": "Debug why this Kafka consumer is not receiving messages.",
+        "expect": "do-not-trigger"
+      },
+      {
+        "prompt": "Should our new processing service write to the database directly or send results back to the CRUD service?",
         "expect": "ambiguous"
       }
     ],
@@ -86,6 +126,26 @@
       {
         "prompt": "Prepare this repository for a release someday.",
         "expect": "ambiguous"
+      },
+      {
+        "prompt": "What transport should two backend services use to hand off work reliably?",
+        "expect": "trigger"
+      },
+      {
+        "prompt": "Should this health-check-only endpoint be deployed as a Cloud Function?",
+        "expect": "trigger"
+      },
+      {
+        "prompt": "Write the Kafka producer code for this service.",
+        "expect": "do-not-trigger"
+      },
+      {
+        "prompt": "Explain what a Kafka consumer group is.",
+        "expect": "do-not-trigger"
+      },
+      {
+        "prompt": "Can we use a Cloud Function for this webhook receiver instead of a full service?",
+        "expect": "ambiguous"
       }
     ],
     "cuelabs-design-standard": [
@@ -107,6 +167,40 @@
       },
       {
         "prompt": "Check whether the product experience is consistent.",
+        "expect": "ambiguous"
+      }
+    ],
+    "cuelabs-system-design": [
+      {
+        "prompt": "Design the backend system for this product from its PRD.",
+        "expect": "trigger"
+      },
+      {
+        "prompt": "Draw an architecture diagram for our app and put it in a page I can share.",
+        "expect": "trigger"
+      },
+      {
+        "prompt": "How many services does this product need, and how should they talk to each other?",
+        "expect": "trigger"
+      },
+      {
+        "prompt": "Update our system design now that uploads need consent checks first.",
+        "expect": "trigger"
+      },
+      {
+        "prompt": "Write the Go handler that saves an uploaded receipt.",
+        "expect": "do-not-trigger"
+      },
+      {
+        "prompt": "Fix the failing Helm lint in this repository.",
+        "expect": "do-not-trigger"
+      },
+      {
+        "prompt": "Explain the difference between Kafka and RabbitMQ.",
+        "expect": "do-not-trigger"
+      },
+      {
+        "prompt": "Should this service use Kafka or call the other service directly?",
         "expect": "ambiguous"
       }
     ]

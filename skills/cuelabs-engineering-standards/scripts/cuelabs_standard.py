@@ -63,6 +63,10 @@ PORTABLE_APPLICATION_FILES = ["Makefile", ".dockerignore", ".env.example"]
 
 STATUSES = {"active", "planned", "paused", "absent"}
 
+# Surfaces `init` can declare; dotted names nest under their prefix.
+INIT_SURFACES = ("web", "backend", "mobile.flutter", "mobile.android", "mobile.ios")
+DECISIONS_TEMPLATE = TEMPLATE_ROOT / "decisions.md"
+
 
 class ManifestError(ValueError):
     """The project manifest cannot be parsed or violates its schema."""
@@ -1020,14 +1024,158 @@ def apply_missing(repo: Path) -> list[str]:
     return copied
 
 
+def parse_surface_flags(values: list[str]) -> dict[str, str]:
+    surfaces: dict[str, str] = {}
+    for value in values:
+        name, separator, status = value.partition("=")
+        if not separator or name not in INIT_SURFACES or status not in STATUSES:
+            raise ManifestError(
+                f"invalid --surface {value!r}: expected NAME=STATUS with NAME in "
+                f"{', '.join(INIT_SURFACES)} and STATUS in "
+                f"{', '.join(sorted(STATUSES))}"
+            )
+        if name in surfaces:
+            raise ManifestError(f"surface {name!r} is declared twice")
+        surfaces[name] = status
+    if not surfaces:
+        raise ManifestError(
+            "declare at least one surface, e.g. --surface web=planned"
+        )
+    return surfaces
+
+
+def render_manifest(name: str, profile: str, surfaces: dict[str, str]) -> str:
+    lines = [
+        "# Syntax: references/project-manifest.md in the installed engineering skill.",
+        "schemaVersion: 1",
+        f"name: {name}",
+        f"profile: {profile}",
+        "",
+        "surfaces:",
+    ]
+    nested: dict[str, dict[str, str]] = {}
+    for surface in INIT_SURFACES:
+        if surface not in surfaces:
+            continue
+        parent, _, child = surface.partition(".")
+        if child:
+            nested.setdefault(parent, {})[child] = surfaces[surface]
+        else:
+            lines.append(f"  {surface}: {surfaces[surface]}")
+    for parent, children in nested.items():
+        lines.append(f"  {parent}:")
+        lines.extend(f"    {child}: {status}" for child, status in children.items())
+    lines += ["", "capabilities: {}", "deployment: {}", "deviations: []", ""]
+    return "\n".join(lines)
+
+
+def render_decisions(name: str, display_name: str) -> str:
+    template = DECISIONS_TEMPLATE.read_text(encoding="utf-8")
+    return template.replace("{{Product}}", display_name).replace("{{product}}", name)
+
+
+def initialize(
+    repo: Path,
+    *,
+    name: str,
+    profile: str,
+    surfaces: dict[str, str],
+    display_name: str | None = None,
+) -> list[str]:
+    """Create the manifest (and, for cuelabs, docs/decisions.md) for a new product.
+
+    Never overwrites: an existing manifest is an error, an existing
+    decisions register is kept as-is.
+    """
+    text = render_manifest(name, profile, surfaces)
+    errors = validate_manifest_data(parse_yaml_subset(text))
+    if errors:
+        raise ManifestError("; ".join(errors))
+    manifest_path = repo / ".cuelabs" / "project.yaml"
+    for destination_name in (".cuelabs/project.yaml", "docs/decisions.md"):
+        collision = find_collision(repo, destination_name)
+        if collision:
+            raise BlockingCollision([collision])
+    if manifest_path.exists():
+        raise ManifestError(
+            "project manifest already exists: .cuelabs/project.yaml; "
+            "edit it instead of re-running init"
+        )
+
+    created: list[str] = []
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(text, encoding="utf-8", newline="\n")
+    created.append(".cuelabs/project.yaml")
+
+    decisions = repo / "docs" / "decisions.md"
+    if profile == "cuelabs" and not decisions.exists():
+        display = display_name or name.replace("-", " ").title()
+        decisions.parent.mkdir(parents=True, exist_ok=True)
+        decisions.write_text(
+            render_decisions(name, display), encoding="utf-8", newline="\n"
+        )
+        created.append("docs/decisions.md")
+    return created
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Audit or apply the CueLABS repository baseline."
+        description="Initialize, audit, or apply the CueLABS repository baseline."
     )
-    parser.add_argument("operation", choices=("audit", "plan", "apply", "verify"))
+    parser.add_argument(
+        "operation", choices=("init", "audit", "plan", "apply", "verify")
+    )
     parser.add_argument("--repo", default=".", help="Target repository path")
     parser.add_argument("--format", choices=("markdown", "json"), default="markdown")
+    parser.add_argument("--name", help="init: product slug (lowercase, hyphens)")
+    parser.add_argument(
+        "--display-name", help="init: display name (default: title-cased slug)"
+    )
+    parser.add_argument(
+        "--profile", choices=("cuelabs", "base"), default="cuelabs",
+        help="init: standards profile",
+    )
+    parser.add_argument(
+        "--surface", action="append", default=[], metavar="NAME=STATUS",
+        help="init: declare a surface, e.g. web=planned (repeatable)",
+    )
     return parser.parse_args()
+
+
+def run_init(repo: Path, args: argparse.Namespace) -> int:
+    if not args.name:
+        print("error: init requires --name <product-slug>", file=sys.stderr)
+        return 2
+    try:
+        created = initialize(
+            repo,
+            name=args.name,
+            profile=args.profile,
+            surfaces=parse_surface_flags(args.surface),
+            display_name=args.display_name,
+        )
+    except (BlockingCollision, ManifestError) as error:
+        print(f"error: {error}", file=sys.stderr)
+        return 2
+    if args.format == "json":
+        print(json.dumps({"created": created}, indent=2))
+        return 0
+    print("# CueLABS standards init")
+    print()
+    print("## Created files")
+    print()
+    for path in created:
+        print(f"- `{path}`")
+    print()
+    print("## Next steps")
+    print()
+    print("1. Run `apply` to copy the missing shared files.")
+    if "docs/decisions.md" in created:
+        print(
+            "2. Fill in the Standard parameters table in `docs/decisions.md` "
+            "before building each surface."
+        )
+    return 0
 
 
 def is_git_worktree(repo: Path) -> bool:
@@ -1059,6 +1207,8 @@ def main() -> int:
     if not is_git_worktree(repo):
         print(f"error: not a git repository: {repo}", file=sys.stderr)
         return 2
+    if args.operation == "init":
+        return run_init(repo, args)
 
     before = inspect(repo)
     if args.operation == "audit":

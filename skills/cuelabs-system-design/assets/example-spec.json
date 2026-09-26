@@ -1,0 +1,168 @@
+{
+  "title": "Ledgerline System Design",
+  "eyebrow": "Ledgerline · system design v1 · example",
+  "lead": "Go does CRUD, Python makes every decision, and a thin Node gateway takes receipt photos in. Kafka connects them, and only Go opens the database. The full write-up is <code>docs/system-design.md</code>.",
+  "status": "Proposed v1 · awaiting ratification (S-1 to S-6)",
+  "sections": [
+    {
+      "id": "overview",
+      "type": "diagram",
+      "title": "The whole system",
+      "legend": true,
+      "caption": "<strong>Read it top to bottom.</strong> Requests come through one load balancer. Go <code>api/common</code> handles everything, including authorizing each upload and handing the app a signed ticket for it. Photos then go to the Node gateway, which accepts nothing without a ticket and passes only pointers onward. Below the Kafka bar, the Python service makes every decision and sends it back for Go to save. The dotted grey line is telemetry.",
+      "diagram": {
+        "width": 1200,
+        "height": 600,
+        "aria": "Ledgerline architecture. Browsers and the mobile app reach one load balancer, which sends ticketed uploads to api/intake (Node gateway) and everything else to api/common (Go, CRUD). api/common is the only client of Postgres and uses Redis for rate limits. The gateway puts photos in temporary Cloud Storage and hands pointers to Kafka. api/process (Python) parses and categorizes receipts and sends results back through Kafka. All three services send telemetry to the observability gateway.",
+        "nodes": [
+          {"id": "browser", "kind": "client", "x": 20, "y": 30, "w": 150, "h": 54, "title": "Browser", "lines": ["web dashboard"]},
+          {"id": "mobile", "kind": "client", "x": 260, "y": 30, "w": 190, "h": 54, "title": "Mobile app", "lines": ["receipt capture"]},
+          {"id": "web", "kind": "client", "x": 20, "y": 140, "w": 150, "h": 54, "title": "web · Next.js", "lines": ["App Hosting + CDN"]},
+          {"id": "lb", "kind": "client", "x": 240, "y": 140, "w": 740, "h": 54, "title": "HTTPS load balancer", "lines": ["api.ledgerline.example · routes by path"]},
+          {"id": "pg", "kind": "store", "x": 20, "y": 250, "w": 150, "h": 74, "title": "Postgres", "lines": ["every record"]},
+          {"id": "common", "kind": "service", "x": 240, "y": 250, "w": 260, "h": 74, "title": "api/common · Go", "lines": ["CRUD · auth · outbox", "issues upload tickets"]},
+          {"id": "intake", "kind": "service", "x": 560, "y": 250, "w": 240, "h": 74, "title": "api/intake · Node", "lines": ["thin gateway · stateless", "verifies ticket · file checks"]},
+          {"id": "gcs", "kind": "store", "x": 1000, "y": 250, "w": 180, "h": 250, "title": "Cloud Storage", "lines": ["tmp/ · deleted after parse", "exports"]},
+          {"id": "kafka", "kind": "bus", "x": 240, "y": 390, "w": 720, "h": 46, "title": "Aiven Kafka — every service handoff"},
+          {"id": "redis", "kind": "store", "x": 20, "y": 480, "w": 150, "h": 74, "title": "Redis", "lines": ["rate limits · quotas"]},
+          {"id": "process", "kind": "python", "x": 240, "y": 480, "w": 260, "h": 74, "title": "api/process · Python", "lines": ["parse · categorize", "duplicates · anomalies"]},
+          {"id": "otel", "kind": "client", "x": 560, "y": 480, "w": 260, "h": 74, "title": "Observability gateway", "lines": ["OTLP + product events"]}
+        ],
+        "edges": [
+          {"from": "common", "to": "redis", "kind": "cache", "points": [[240, 316], [205, 316], [205, 517], [172, 517]]},
+          {"from": "common", "to": "otel", "kind": "telemetry", "label": "OTLP, events", "points": [[500, 300], [530, 300], [530, 517], [558, 517]]},
+          {"from": "intake", "to": "otel", "kind": "telemetry", "arrow": "none", "join": true, "points": [[560, 312], [530, 312]]},
+          {"from": "process", "to": "otel", "kind": "telemetry", "arrow": "none", "join": true, "points": [[500, 517], [530, 517]]},
+          {"from": "browser", "to": "web", "kind": "request", "label": "pages", "points": [[95, 84], [95, 138]]},
+          {"from": "browser", "to": "lb", "kind": "request", "label": "JSON API", "points": [[170, 72], [300, 138]]},
+          {"from": "web", "to": "lb", "kind": "request", "label": "SSR", "points": [[170, 167], [238, 167]]},
+          {"from": "mobile", "to": "lb", "kind": "request", "label": "JSON, photos", "points": [[355, 84], [355, 138]]},
+          {"from": "lb", "to": "common", "kind": "request", "label": "/api/v1/* default", "points": [[370, 194], [370, 248]]},
+          {"from": "lb", "to": "intake", "kind": "request", "label": "/api/v1/uploads + ticket", "points": [[680, 194], [680, 248]]},
+          {"from": "common", "to": "pg", "kind": "request", "label": "owns", "points": [[240, 287], [172, 287]]},
+          {"from": "intake", "to": "gcs", "kind": "storage-write", "label": "put tmp/", "points": [[800, 287], [998, 287]]},
+          {"from": "common", "to": "gcs", "kind": "storage-write", "label": "delete after parse", "points": [[500, 262], [530, 262], [530, 240], [1090, 240], [1090, 248]]},
+          {"from": "common", "to": "kafka", "kind": "kafka", "label": "import.ready", "points": [[280, 324], [280, 388]]},
+          {"from": "kafka", "to": "common", "kind": "kafka", "label": "processed", "points": [[470, 390], [470, 326]]},
+          {"from": "intake", "to": "kafka", "kind": "kafka", "label": "upload.received", "points": [[680, 324], [680, 388]]},
+          {"from": "kafka", "to": "process", "kind": "kafka", "label": "import.ready", "points": [[280, 436], [280, 478]]},
+          {"from": "process", "to": "kafka", "kind": "kafka", "label": "processed", "points": [[470, 480], [470, 438]]},
+          {"from": "process", "to": "gcs", "kind": "storage-read", "label": "reads tmp/", "points": [[370, 554], [370, 572], [1090, 572], [1090, 502]]}
+        ],
+        "labels": [
+          {"x": 103, "y": 116, "text": "pages"},
+          {"x": 178, "y": 124, "text": "JSON API"},
+          {"x": 204, "y": 160, "text": "SSR", "anchor": "middle"},
+          {"x": 363, "y": 116, "text": "JSON · photos"},
+          {"x": 378, "y": 224, "text": "/api/v1/* default"},
+          {"x": 688, "y": 224, "text": "/api/v1/uploads + ticket"},
+          {"x": 206, "y": 280, "text": "owns", "anchor": "middle"},
+          {"x": 900, "y": 280, "text": "put tmp/", "anchor": "middle", "kind": "storage"},
+          {"x": 960, "y": 234, "text": "delete after parse", "anchor": "middle", "kind": "storage"},
+          {"x": 286, "y": 358, "text": "import.ready", "kind": "kafka"},
+          {"x": 464, "y": 378, "text": "processed", "anchor": "end", "kind": "kafka"},
+          {"x": 674, "y": 372, "text": "upload.received", "anchor": "end", "kind": "kafka"},
+          {"x": 286, "y": 462, "text": "import.ready", "kind": "kafka"},
+          {"x": 464, "y": 470, "text": "processed", "anchor": "end", "kind": "kafka"},
+          {"x": 900, "y": 566, "text": "reads tmp/", "anchor": "middle", "kind": "storage"},
+          {"x": 212, "y": 470, "text": "Redis", "kind": "storage"},
+          {"x": 536, "y": 470, "text": "OTLP · events"}
+        ]
+      }
+    },
+    {
+      "id": "rules",
+      "type": "rules",
+      "title": "The three rules",
+      "items": [
+        {"title": "Go only does CRUD.", "text": "<code>api/common</code> is the only service that opens Postgres. It saves decisions; it never makes them."},
+        {"title": "Python makes every decision.", "text": "Parsing, categories, duplicates and anomalies all happen in <code>api/process</code>."},
+        {"title": "Nothing talks synchronously.", "text": "Every handoff goes through Kafka. Python gets its reference data inside the message."}
+      ]
+    },
+    {
+      "id": "services",
+      "type": "table",
+      "title": "What each service does",
+      "columns": ["Service", "Language · role", "Job", "Runs as (cloud)", "Port"],
+      "rows": [
+        ["web", "Next.js", "Landing page and dashboard", "App Hosting", {"text": "3000", "class": "num"}],
+        ["api/common", "Go · CRUD", "Auth, ledger, receipts, review and confirm; authorizes every upload and issues its ticket; outbox; saves every decision Python makes", "Cloud Run service, min 1", {"text": "8080", "class": "num"}],
+        ["api/intake", "Node · gateway", "Verifies the upload ticket, checks the file, writes it to temporary storage, sends a pointer to Kafka. Stateless", "Cloud Run service, 0–5", {"text": "8081", "class": "num"}],
+        ["api/process", "Python · processing", "Parses receipts, categorizes, flags duplicates and anomalies", "Worker pool", {"text": "8082", "class": "num"}]
+      ]
+    },
+    {
+      "id": "capture",
+      "type": "sequence",
+      "title": "One receipt upload",
+      "caption": "<strong><code>common</code> says yes before the photo leaves the phone.</strong> Creating the receipt checks limits and consent, then returns a signed ticket. The photo sits in <code>tmp/</code> only until <code>api/process</code> reports back.",
+      "sequence": {
+        "aria": "Sequence for one receipt upload: the app creates the receipt on api/common and gets a ticket, uploads the photo to api/intake, which stores it and sends a pointer to Kafka; api/common forwards it with reference data; api/process parses and categorizes it and returns the result; api/common stores it and deletes the photo.",
+        "lanes": [
+          {"id": "app", "title": "Mobile app", "sub": "user's phone", "kind": "client"},
+          {"id": "gw", "title": "api/intake", "sub": "Node gateway", "kind": "service"},
+          {"id": "gcs", "title": "Cloud Storage", "sub": "tmp/", "kind": "store"},
+          {"id": "k", "title": "Kafka", "sub": "Aiven", "kind": "bus"},
+          {"id": "c", "title": "api/common", "sub": "Go · CRUD", "kind": "service"},
+          {"id": "p", "title": "api/process", "sub": "Python", "kind": "python"}
+        ],
+        "steps": [
+          {"from": "app", "to": "c", "text": "POST /receipts {size} · Idempotency-Key"},
+          {"note": "limits · AI consent · quota", "at": "c"},
+          {"from": "c", "to": "app", "kind": "reply", "text": "201 · receipt id + upload ticket"},
+          {"from": "app", "to": "gw", "text": "POST /uploads + ticket"},
+          {"from": "gw", "to": "gcs", "kind": "storage-write", "text": "put receipt.jpg"},
+          {"from": "gw", "to": "k", "kind": "kafka", "text": "upload.received {pointer}"},
+          {"from": "k", "to": "c", "kind": "kafka", "text": "upload.received"},
+          {"from": "c", "to": "k", "kind": "kafka", "text": "import.ready + categories"},
+          {"from": "k", "to": "p", "kind": "kafka", "text": "import.ready"},
+          {"from": "p", "to": "gcs", "kind": "storage-read", "text": "read receipt.jpg"},
+          {"from": "p", "to": "k", "kind": "kafka", "text": "import.processed"},
+          {"from": "k", "to": "c", "kind": "kafka", "text": "import.processed"},
+          {"from": "c", "to": "gcs", "kind": "storage-write", "text": "delete receipt.jpg"},
+          {"from": "app", "to": "c", "text": "GET /receipts/{id} while polling → completed"}
+        ],
+        "footer": "The user then reviews the categories and confirms; common writes the ledger rows in one transaction."
+      }
+    },
+    {
+      "id": "topics",
+      "type": "table",
+      "title": "Kafka topics",
+      "intro": "Every topic starts with the product name, carries JSON validated against a schema in <code>api/common/contract/</code>, and keeps financial data for 24 hours only.",
+      "columns": ["Topic", "Key", "Kept for", "Producer → consumers"],
+      "rows": [
+        ["ledgerline.upload.received", "ticket id", "24 h", "intake → common"],
+        ["ledgerline.import.ready", "receipt id", "24 h", "common (outbox) → process"],
+        ["ledgerline.import.processed", "receipt id", "24 h", "process → common"],
+        ["ledgerline.config.categories", "category id", "compacted", "common (outbox) → process"]
+      ]
+    },
+    {
+      "id": "decisions",
+      "type": "table",
+      "title": "Decisions to ratify",
+      "columns": ["ID", "Decision", "Replaces"],
+      "rows": [
+        ["S-1", "Units: web, Go <code>common</code>, Node <code>intake</code>, Python <code>process</code>", "One service doing everything"],
+        ["S-2", "Aiven Kafka between services; no synchronous internal calls", "HTTP calls from Go to Python"],
+        ["S-3", "Only <code>common</code> touches Postgres", "—"],
+        ["S-4", "Upload tickets; the gateway is stateless", "Gateway with its own sign-in check"],
+        ["S-5", "Photos in <code>tmp/</code> only until parsed", "Photos in Kafka messages"],
+        ["S-6", "<code>common</code> min 1; <code>process</code> as a worker pool", "Every service at min 0"]
+      ]
+    },
+    {
+      "id": "open",
+      "type": "list",
+      "title": "Still open",
+      "items": [
+        {"title": "Kafka plan.", "text": "A free Kafka tier that powers off when idle can't back always-on consumers."},
+        {"title": "AI consent wording.", "text": "The privacy page needs to say photos are processed by an AI provider."},
+        {"title": "Offline capture.", "text": "Should the app queue photos while offline?"}
+      ]
+    }
+  ],
+  "footer": "Example spec bundled with the system-design skill. Every value here is fictional."
+}

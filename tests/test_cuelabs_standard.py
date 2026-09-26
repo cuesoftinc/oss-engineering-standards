@@ -583,6 +583,89 @@ class StandardsCliTest(unittest.TestCase):
 
         self.assertTrue(standard.is_git_worktree(self.repo))
 
+    def test_init_writes_valid_manifest_and_decisions_register(self) -> None:
+        created = standard.initialize(
+            self.repo,
+            name="acme-labs",
+            profile="cuelabs",
+            surfaces={"web": "planned", "mobile.flutter": "absent"},
+        )
+
+        self.assertEqual(created, [".cuelabs/project.yaml", "docs/decisions.md"])
+        audit = standard.inspect(self.repo)
+        self.assertEqual(audit.manifest, "valid")
+        self.assertEqual(audit.surfaces["web"], "planned")
+        self.assertEqual(audit.surfaces["flutter"], "absent")
+        decisions = (self.repo / "docs" / "decisions.md").read_text(encoding="utf-8")
+        self.assertIn("# Acme Labs — Decisions", decisions)
+        self.assertIn("| P-01 | Product slug | acme-labs |", decisions)
+        self.assertIn("| P-14 | Discord channel | — | Proposed: `#acme-labs-lab`", decisions)
+        self.assertNotIn("{{", decisions)
+
+    def test_init_then_apply_reaches_conformance_on_empty_repo(self) -> None:
+        standard.initialize(
+            self.repo, name="acme", profile="cuelabs", surfaces={"web": "planned"}
+        )
+
+        standard.apply_missing(self.repo)
+
+        self.assertTrue(standard.inspect(self.repo).conforming)
+
+    def test_init_never_overwrites_existing_files(self) -> None:
+        self.write_manifest()
+        manifest = self.repo / ".cuelabs" / "project.yaml"
+        original = manifest.read_bytes()
+
+        with self.assertRaises(standard.ManifestError):
+            standard.initialize(
+                self.repo, name="acme", profile="cuelabs", surfaces={"web": "active"}
+            )
+        self.assertEqual(manifest.read_bytes(), original)
+
+        manifest.unlink()
+        decisions = self.repo / "docs" / "decisions.md"
+        decisions.parent.mkdir()
+        decisions.write_text("# Existing register\n")
+        created = standard.initialize(
+            self.repo, name="acme", profile="cuelabs", surfaces={"web": "active"}
+        )
+        self.assertEqual(created, [".cuelabs/project.yaml"])
+        self.assertEqual(decisions.read_text(), "# Existing register\n")
+
+    def test_init_base_profile_skips_decisions_register(self) -> None:
+        created = standard.initialize(
+            self.repo, name="acme", profile="base", surfaces={"backend": "active"}
+        )
+
+        self.assertEqual(created, [".cuelabs/project.yaml"])
+        self.assertEqual(standard.inspect(self.repo).profile, "base")
+
+    def test_init_rejects_invalid_arguments_before_writing(self) -> None:
+        with self.assertRaises(standard.ManifestError):
+            standard.initialize(
+                self.repo, name="Bad_Name", profile="cuelabs", surfaces={"web": "active"}
+            )
+        for flags in ([], ["api=active"], ["web=done"], ["web"], ["web=active", "web=planned"]):
+            with self.assertRaises(standard.ManifestError):
+                standard.parse_surface_flags(flags)
+        self.assertFalse((self.repo / ".cuelabs").exists())
+
+    def test_cli_init_requires_name(self) -> None:
+        stderr = io.StringIO()
+        with mock.patch.object(standard, "is_git_worktree", return_value=True):
+            with mock.patch.object(
+                sys,
+                "argv",
+                ["cuelabs_standard.py", "init", "--repo", str(self.repo),
+                 "--surface", "web=planned"],
+            ):
+                with redirect_stderr(stderr):
+                    exit_code = standard.main()
+
+        self.assertEqual(exit_code, 2)
+        self.assertIn("--name", stderr.getvalue())
+        self.assertFalse((self.repo / ".cuelabs").exists())
+
     def test_apply_rejects_symlinked_template_parent(self) -> None:
         self.write_manifest("  web: absent\n")
         with tempfile.TemporaryDirectory() as outside_dir:

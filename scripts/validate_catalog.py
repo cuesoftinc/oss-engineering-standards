@@ -14,6 +14,14 @@ SKILLS = ROOT / "skills"
 EVALS = ROOT / "evals" / "trigger-cases.json"
 LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 
+# The skills are product-agnostic: a product appears only as the provider of a
+# shared ecosystem service, in that table's rows. Rules carry no dated history.
+PRODUCT_NAMES = re.compile(r"\b(apparule|expendit|upstat|irealty|getpp)\b", re.I)
+SHARED_SERVICES = (
+    SKILLS / "cuelabs-engineering-standards" / "references" / "organization-policy.md"
+)
+ISO_DATE = re.compile(r"\b20\d\d-\d\d-\d\d\b")
+
 
 def frontmatter(text: str) -> dict[str, str]:
     if not text.startswith("---\n"):
@@ -99,6 +107,25 @@ def validate_markdown_links(path: Path) -> list[str]:
     return errors
 
 
+def validate_generic_content(path: Path) -> list[str]:
+    errors: list[str] = []
+    text = path.read_text(encoding="utf-8", errors="replace")
+    for number, line in enumerate(text.splitlines(), start=1):
+        match = PRODUCT_NAMES.search(line)
+        if match and not (path == SHARED_SERVICES and line.startswith("|")):
+            errors.append(
+                f"{path}:{number}: product name {match.group(0)!r}; state the "
+                "rule generically or record the value in the product's "
+                "docs/decisions.md"
+            )
+        if path.suffix == ".md" and ISO_DATE.search(line):
+            errors.append(
+                f"{path}:{number}: dated history belongs in CHANGELOG.md, "
+                "not in a standard"
+            )
+    return errors
+
+
 def main() -> int:
     errors: list[str] = []
     if not EVALS.is_file():
@@ -121,6 +148,9 @@ def main() -> int:
     ]
     for path in markdown:
         errors.extend(validate_markdown_links(path))
+    for path in sorted(SKILLS.rglob("*")):
+        if path.is_file():
+            errors.extend(validate_generic_content(path))
 
     if errors:
         print("Catalog validation failed:", file=sys.stderr)

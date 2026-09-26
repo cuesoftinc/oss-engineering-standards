@@ -16,6 +16,7 @@ GitHub Copilot, Claude Code, and other clients supported by GitHub CLI.
 | `cuelabs-mobile-standard` | Flutter architecture, Riverpod, fakes, flavors, goldens, platform builds, and mobile parity |
 | `cuelabs-delivery-standard` | GitHub Actions, containers, Helm, Terraform, telemetry, releases, and deployment readiness |
 | `cuelabs-design-standard` | Figma variables, design systems, components, prototypes, accessibility, and visual QA |
+| `cuelabs-system-design` | System designs from a PRD, a repository, or a description: services, communication, data ownership, and a diagram page with Excalidraw and Mermaid copy buttons |
 
 The repository root intentionally has no `SKILL.md`. Installable skills live
 under `skills/<skill-name>/SKILL.md`, which allows clients to discover,
@@ -92,6 +93,7 @@ explicitly:
 Use $cuelabs-engineering-standards to audit this repository.
 Use $cuelabs-delivery-standard to standardize GitHub Actions.
 Use $cuelabs-web-standard to review this dashboard against CueLABS conventions.
+Use $cuelabs-system-design to design this product's backend from its PRD.
 ```
 
 The primary skill also includes a dependency-free terminal tool:
@@ -101,9 +103,21 @@ python3 skills/cuelabs-engineering-standards/scripts/cuelabs_standard.py \
   audit --repo /path/to/repository
 ```
 
-Available operations are `audit`, `plan`, `apply`, and `verify`. `apply` copies
-only missing profile-managed files; it never overwrites existing files or
-writes through symlinked paths.
+Available operations are `init`, `audit`, `plan`, `apply`, and `verify`.
+`init` starts a new product: it writes `.cuelabs/project.yaml` and a
+`docs/decisions.md` seeded with the product parameters to decide. `apply`
+copies only missing profile-managed files. Neither overwrites existing files
+or writes through symlinked paths.
+
+Start a brand-new product:
+
+```bash
+git init acme && cd acme
+printf '# Acme\n' > README.md && printf '# Changelog\n' > CHANGELOG.md
+python3 <skill-dir>/scripts/cuelabs_standard.py init --repo . \
+  --name acme --surface web=planned
+python3 <skill-dir>/scripts/cuelabs_standard.py apply --repo .
+```
 
 ## Profiles and project state
 
