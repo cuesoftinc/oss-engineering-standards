@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-10-02
+
 ### Fixed
 
 - Web and design skills state they exclude the Cuesoft division site and design system.
