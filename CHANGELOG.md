@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-10-02
+
+### Fixed
+
+- Web and design skills state they exclude the Cuesoft division site and design system.
+- Google-only sign-in rule scoped to CueLABS open-source products.
+- Brevo sender variable names, legal-link and Tailwind scope corrected.
+
 ## [2.1.0] - 2026-09-26
 
 ### Added
