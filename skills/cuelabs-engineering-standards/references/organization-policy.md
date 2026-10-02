@@ -31,7 +31,7 @@ flowchart LR
   CRUD, processing, and gateway responsibilities split, connected by pub/sub
   rather than a direct service-to-service call.
 - Auth: Firebase Authentication, **Google sign-in ONLY** — no username/password
-  signup or login anywhere in the ecosystem. Enforce at three layers:
+  signup or login in any CueLABS™ open-source product. Enforce at three layers:
   Email/Password provider disabled on the Firebase project; backends reject
   tokens with `sign_in_provider != google.com`; UI ships exactly one
   "Continue with Google" CTA. Every product uses the shared identity project
