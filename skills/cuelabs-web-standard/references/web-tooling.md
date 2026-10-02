@@ -43,7 +43,7 @@ Values marked *(product decision)* are recorded in the product's
   mock narrative is shared mutable state runs serial (`workers: 1`) and
   documents why.
 - **tsconfig** — byte-identical (route-types entries included).
-- **Tailwind v4 + typed config org-wide**: all repos run Tailwind v4
+- **Tailwind v4 + typed config across CueLABS™ products**: all product repos run Tailwind v4
   (`@tailwindcss/postcss`, tokens via a `@theme inline` block in globals.css
   over the tokens.css vars; alpha via native v4 modifiers) and a typed
   `next.config.ts`. No husky/lint-staged anywhere — formatting and lint are
@@ -108,7 +108,7 @@ Values marked *(product decision)* are recorded in the product's
   `transform`, never `left`/`top` — layout-property movers are CLS
   sources.
   **Legal-link canon**: Terms = `https://terms.cuesoft.io`, Privacy =
-  `https://privacy.cuesoft.io` — the ONLY legal-link targets (always https;
+  `https://privacy.cuesoft.io` — the ONLY legal-link targets in product apps (always https;
   never local `/terms` or `/privacy` routes, which ship as dead or `/`
   placeholder hrefs). Signin carries the consent line ("By continuing you
   agree to the Terms and Privacy Policy.") with both links;
