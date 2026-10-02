@@ -30,7 +30,7 @@ Identical names across all repos (Doppler `<project>/stg` is the source of
 values; `.env.example` documents names with dev-safe defaults):
 `PORT` · `CORS_ORIGINS` (comma-separated exact origins — the only CORS var;
 never ALLOWED_ORIGINS/FRONTEND_URL) · `REDIS_HOST/PORT/USERNAME/PASSWORD/TLS/DB`
-(discrete, never a single URL) · `BREVO_API_KEY/FROM_EMAIL/FROM_NAME` ·
+(discrete, never a single URL) · `BREVO_API_KEY/BREVO_FROM_EMAIL/BREVO_FROM_NAME` ·
 `GOOGLE_CLOUD_PROJECT` · `SERVICE_TOKEN_HASH` (server side of s2s token
 validation) · DB: `DATABASE_URL` (Postgres) / ADC for Firestore
 (`MONGO_URI`+`MONGO_DB` only in repos still on MongoDB) ·
