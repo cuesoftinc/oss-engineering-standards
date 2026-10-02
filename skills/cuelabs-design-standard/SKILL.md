@@ -5,6 +5,10 @@ description: Create, audit, or standardize CueLABS product design systems and th
 
 # CueLABS Design Standard
 
+This standard covers CueLABS product design systems. The Cuesoft Design System
+Figma file and the `@cuesoftinc/design-system` package belong to
+`cuesoft-design-standard`, not here.
+
 Maintain design artifacts as implementation contracts. Preserve each product's
 visual identity while keeping shared foundations, naming, accessibility, and QA
 methods consistent.
