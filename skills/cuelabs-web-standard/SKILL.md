@@ -5,6 +5,10 @@ description: Build, audit, or standardize CueLABS web applications and marketing
 
 # CueLABS Web Standard
 
+This standard covers CueLABS open-source product repositories (`web/` tree). The
+cuelabs.cuesoft.io division site is a Cuesoft site and follows
+`cuesoft-web-standard`; these rules do not apply to it.
+
 Implement the web surface from the product's current documentation and design
 artifacts. Preserve product character while enforcing shared engineering,
 accessibility, testing, and integration contracts.
