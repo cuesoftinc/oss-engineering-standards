@@ -51,7 +51,10 @@ non-obvious boundary, including any split-or-pool choice).
   truth?
 - 5.2 The owner's schema additions this design needs, as a table with a
   "Why" column.
-- 5.3 Queue topics: Topic · Key · Retention · Producer → consumers.
+- 5.3 Queue events: Event · Topic (lane) · Key · Producer → consumers.
+  On a shared queue service, name the organization's messaging profile as
+  the source of topics, envelope and limits, and list only this product's
+  events.
 
 ## 6. Key flows
 

@@ -133,6 +133,10 @@
   `KAFKA_PASSWORD`, `KAFKA_SSL_CA` (identical names across every language
   client). Each consumer runs its own consumer group. The canonical shape is
   gateway `api/<gateway>` → processing `api/<processor>` → `api/common`.
+  **Every product shares one Kafka service** (like the shared Redis): its
+  lanes, envelope, limits, scale-to-zero wake-ups and keep-alive owner are
+  in [shared-messaging.md](shared-messaging.md); a product never creates its
+  own topics.
 - **Kafka consumers need a running workload.** A Kafka message does not
   start a Cloud Run instance that has scaled to zero, and under the default
   request-based billing an instance gets no CPU outside a request, so a
@@ -141,8 +145,11 @@
   - a **Cloud Run worker pool** (the default: always-on, no HTTP ingress);
   - a Cloud Run service with `min-instances >= 1` **and** instance-based
     billing (CPU always allocated);
-  - another explicit wake-up path, documented in the product's
-    `docs/deployment.md` with how queued messages are drained after a wake.
+  - a Cloud Run service at `min-instances 0` with instance-based billing
+    and **wake-ups**: whatever publishes for the consumer sends it a
+    data-free `GET /health`, and the owner's sweep re-wakes services while
+    work is in flight ([shared-messaging.md](shared-messaging.md), "Scale
+    to zero"). Document it in the product's `docs/deployment.md`.
 
   Record the always-on cost against any free-tier goal. See Google's
   [instance autoscaling](https://docs.cloud.google.com/run/docs/about-instance-autoscaling)

@@ -28,6 +28,17 @@ observability:
   standard: opentelemetry
   transport: otlp
 
+messaging:
+  broker: aiven-kafka
+  shared: true
+  contract: skills/cuelabs-delivery-standard/references/shared-messaging.md
+  topics:
+    - cuelabs.uploads
+    - cuelabs.requests
+    - cuelabs.results
+  eventType: <product>.<domain>.<event>
+  keepAliveOwner: recorded-in-product-decisions
+
 sharedFiles:
   source: assets/templates
   overwriteExisting: false
