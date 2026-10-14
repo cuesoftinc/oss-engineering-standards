@@ -84,7 +84,7 @@ throughput.
 
 Cloud Run services that consume run at **min 0 with CPU always allocated**.
 Whoever publishes for a consumer that may be asleep wakes it with a
-data-free `GET /health` (with a Cloud Run ID token when the target requires
+`GET /health` that carries no data (with a Cloud Run ID token when the target requires
 authentication), debounced for about 10 seconds. Base URLs come from
 `WAKE_<TARGET>_URL` settings; unset means "always running" (compose, Helm).
 A product's scheduled sweep wakes its own services while its store shows

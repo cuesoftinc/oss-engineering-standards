@@ -147,7 +147,7 @@
     billing (CPU always allocated);
   - a Cloud Run service at `min-instances 0` with instance-based billing
     and **wake-ups**: whatever publishes for the consumer sends it a
-    data-free `GET /health`, and the owner's sweep re-wakes services while
+    `GET /health` that carries no data, and the owner's sweep re-wakes services while
     work is in flight ([shared-messaging.md](shared-messaging.md), "Scale
     to zero"). Document it in the product's `docs/deployment.md`.
 

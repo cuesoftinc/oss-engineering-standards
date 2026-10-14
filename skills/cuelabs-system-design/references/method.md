@@ -99,7 +99,7 @@ service keeps its port.
 | Browser or app to backend | HTTPS/JSON on one API host, routed by path at a load balancer. The browser runs the app and calls the API directly (CORS allowlist); the web server only serves the app and server-renders public pages |
 | Sign-in | The client signs in with the identity provider's SDK and sends its ID token; services verify tokens locally with the provider's public keys |
 | File upload | Create-then-upload with an **upload ticket** (Patterns) |
-| Service to service | The queue (Kafka by default). No gRPC between services. The one exception is a data-free wake-up call that starts a consumer scaled to zero (Deployment) |
+| Service to service | The queue (Kafka by default). No gRPC between services. The one exception is a wake-up call, carrying no data, call that starts a consumer scaled to zero (Deployment) |
 | A call that needs its answer inline and targets a stateless callee (a probe), or a read against the read service | Synchronous HTTPS with the platform's service identity; list it as a decision |
 | Third party calls us (webhooks) | Through the load balancer to the owner of the affected data: verify the signature, store the raw event, publish it; a processing service interprets it |
 | We call a third party to fetch data | From the service holding the credential, usually the CRUD owner (fetch and relay); decisions about the fetched data still go through processing |
@@ -189,10 +189,10 @@ the item. A lost message then costs a delay, not lost work.
   wake a scaled-to-zero instance. Run them as worker pools; or at a minimum
   of one instance with instance-based billing (CPU always allocated); or at
   zero with **wake-ups**: CPU always allocated while an instance is up, and
-  whatever publishes for a consumer sends it a data-free request
+  whatever publishes for a consumer sends it a request that carries no data
   (`GET /health`) afterwards so the platform starts an instance, with the
   owner's sweep re-waking services while its store shows work in flight.
-  Say what the choice costs against any free-tier goal.
+  Say what the choice costs against the product's cost goal.
 - Request-driven services with no consumer may scale to zero.
 - Scheduled lookup-then-write work runs as scheduled jobs from the owner's
   image; scheduled decisions run from the processing image.
