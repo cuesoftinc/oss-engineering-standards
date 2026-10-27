@@ -7,12 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-10-27
+
 ### Changed
 
 - API services deploy on merge to `main`; no tags or releases.
 - Every Cloud Run service scales to zero; no worker pools.
 - Kafka consumers run at min 0 with wake-ups only.
 - Actions pin the latest major tag, never a commit sha.
+- Install examples pin v2.3.0.
 
 ### Added
 

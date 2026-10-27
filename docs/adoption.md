@@ -20,7 +20,7 @@ set:
 
 ```bash
 gh skill install cuesoftinc/oss-engineering-standards \
-  --all --agent codex --scope project --pin v2.2.0
+  --all --agent codex --scope project --pin v2.3.0
 ```
 
 Review and commit the resulting `.agents/skills/` tree. Update it deliberately
