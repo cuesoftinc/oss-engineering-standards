@@ -62,8 +62,8 @@ services, every repo publishes the same host ports — `api/common` → **8080**
 it was added (**8081**, 8082, …; a two-service pipeline takes 8081 for the
 gateway and 8082 for the processor). The product records its assignments in
 `docs/decisions.md`. Compose sets `PORT` and the published port
-to the same value, and the web image's `NEXT_PUBLIC_BASE_URL` build arg targets
-`http://localhost:8080`.
+to the same value, and the web's runtime `API_URL` targets `api/common` on
+8080.
 
 Gotchas that cost real time:
 - Build the web image on **`node:*-slim` (glibc), not Alpine** — Next 16's

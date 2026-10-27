@@ -41,11 +41,13 @@ services:
     build:
       context: ./web
       args:
-        NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:8080}
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${NEXT_PUBLIC_FIREBASE_PROJECT_ID:-demo-local}
+        NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST: ${NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST:-localhost:9099}
     ports:
       - "3000:3000"
     environment:
       PORT: "3000"
+      API_URL: http://api-common:8080
     depends_on:
       api-common:
         condition: service_healthy

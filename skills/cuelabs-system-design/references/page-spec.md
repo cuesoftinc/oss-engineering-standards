@@ -76,7 +76,7 @@ balancer), `service` (Go or Node), `python`, `function`, `stock`, `store`,
 `bus` (queue; its title sits inside, left-aligned), `person`, `chip` and
 `chipbad` (small tags inside a larger node; use `"align": "top"` on the
 parent so its title sits at the top), `group` (dashed outline around the
-worker pools of one service; its `title` is drawn at `label_pos`, default
+deployments of one service; its `title` is drawn at `label_pos`, default
 `bottom-right`), `labelbg` (a surface-coloured patch behind a label).
 `font_size` shrinks a long title.
 
@@ -129,7 +129,7 @@ Diagrams read top to bottom. A proven grid for a whole-system diagram at
 | Edge | 140 | web (left, 150 wide) and the load balancer (240 to 980) |
 | Services | 250 | stores or providers at the left edge (x 20), `api/common` at x 240, gateways at x 560, object storage as a tall box at x 1000 |
 | Queue | 390 | the bus from x 240 to 960, 46 tall |
-| Processing | 500 | Python services or a pool group at x 240 and 560 |
+| Processing | 500 | Python services or a deployment group at x 240 and 560 |
 | Support | 620 | cache, observability, AI provider |
 
 Rules that keep diagrams readable:
@@ -139,7 +139,7 @@ Rules that keep diagrams readable:
   anchor), or to the left with `end`;
 - route shared lines (telemetry, cache) in the gaps between columns, behind
   the queue bar, and merge branches into one line;
-- draw one service with several pools as a `group` around them;
+- draw one service with several deployments as a `group` around them;
 - connect every box; a box with no line reads as not part of the system
   (set `"standalone": true` only for a deliberate legend-like box).
 

@@ -82,10 +82,11 @@ is true, and say which one in the design:
   other must never see.
 
 When the paths differ only in speed or volume, but share vocabulary, schemas,
-team and release cadence, keep **one service and run it as several worker
-pools** from the same image (an environment variable selects the pool). Draw
-it as one service with the pools inside it. Record the split-or-pool choice
-as a decision; it is often the user's to make.
+team and release cadence, keep **one service and deploy it several times**
+from the same image, each deployment scaling on its own (an environment
+variable selects the path). Draw it as one service with the deployments
+inside it. Record the split-or-deploy choice as a decision; it is often the
+user's to make.
 
 ### Ports
 
