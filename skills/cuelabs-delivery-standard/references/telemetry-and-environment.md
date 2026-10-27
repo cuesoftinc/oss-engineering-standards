@@ -26,10 +26,9 @@ mixed. Env: `OTEL_SERVICE_NAME`, `OTEL_EXPORTER_OTLP_ENDPOINT`,
 
 ## Environment-variable naming standard
 
-These names are canonical across CueLABS and Cuesoft repos and identical in
-`cuesoft-delivery-standard`. Doppler `<project>/stg` is the source of values;
-`.env.example` documents names with dev-safe defaults. OpenTelemetry names are
-listed above.
+These names are canonical across CueLABS repos. Doppler `<project>/stg` is the
+source of values; `.env.example` documents names with dev-safe defaults.
+OpenTelemetry names are listed above.
 
 | Variable                                                                      | Purpose                                                                                                                                           |
 | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
