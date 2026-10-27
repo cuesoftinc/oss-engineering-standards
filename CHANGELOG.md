@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Canonical environment variable names and naming rules for every backend.
+
 ## [2.3.0] - 2026-10-27
 
 ### Changed

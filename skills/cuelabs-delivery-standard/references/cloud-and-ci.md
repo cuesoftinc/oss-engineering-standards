@@ -117,8 +117,8 @@
     `── section ──` comment headers; `web/.env.example` stays headerless.
   - **next.config**: `devIndicators: { position: "bottom-right" }` — keep
     the dev indicator, keep it out of content corners.
-- Transactional email: **Brevo REST API** only (`BREVO_API_KEY/FROM_EMAIL/
-  FROM_NAME` via Doppler) — **no SMTP** in any CueLABS™ product.
+- Transactional email: **Brevo REST API** only (`BREVO_API_KEY`/`BREVO_FROM_EMAIL`/
+  `BREVO_FROM_NAME` via Doppler) — **no SMTP** in any CueLABS™ product.
 - Data plane (cloud): per-product choice of **Aiven Postgres** or **Firestore**
   (Firebase-native/real-time products → Firestore; financial/relational →
   Postgres; recorded in the product's `docs/decisions.md`). Shared **Aiven
