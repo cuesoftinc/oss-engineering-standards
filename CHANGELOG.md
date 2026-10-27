@@ -21,8 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Shared message bus for CueLABS products
   (`cuelabs-delivery-standard/references/shared-messaging.md`, and the
-  `messaging` block in the `cuelabs` profile). Expendit, Apparule and
-  Upstat share one Kafka service through three lanes
+  `messaging` block in the `cuelabs` profile). Products share one Kafka
+  service through three lanes
   (`cuelabs.uploads`, `cuelabs.requests`, `cuelabs.results`), with event
   types `<product>.<domain>.<event>`, pointer-only payloads, no compacted
   topics, one Kafka user per product, scale-to-zero wake-ups, re-send from

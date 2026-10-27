@@ -99,7 +99,7 @@ service keeps its port.
 | Browser or app to backend | HTTPS/JSON on one API host, routed by path at a load balancer. The browser runs the app and calls the API directly (CORS allowlist); the web server only serves the app and server-renders public pages |
 | Sign-in | The client signs in with the identity provider's SDK and sends its ID token; services verify tokens locally with the provider's public keys |
 | File upload | Create-then-upload with an **upload ticket** (Patterns) |
-| Service to service | The queue (Kafka by default). No gRPC between services. The one exception is a wake-up call, carrying no data, call that starts a consumer scaled to zero (Deployment) |
+| Service to service | The queue (Kafka by default). No gRPC between services. The one exception is a wake-up call, carrying no data, that starts a consumer scaled to zero (Deployment) |
 | A call that needs its answer inline and targets a stateless callee (a probe), or a read against the read service | Synchronous HTTPS with the platform's service identity; list it as a decision |
 | Third party calls us (webhooks) | Through the load balancer to the owner of the affected data: verify the signature, store the raw event, publish it; a processing service interprets it |
 | We call a third party to fetch data | From the service holding the credential, usually the CRUD owner (fetch and relay); decisions about the fetched data still go through processing |
@@ -181,7 +181,10 @@ depends on the queue keeping a message for more than a day.
 **Re-send from the owner.** The owner stores what each in-flight request
 was built from (the upload pointer, the reference data inputs). A sweep
 queues a request again, once, when its result is overdue, before it fails
-the item. A lost message then costs a delay, not lost work.
+the item. A lost message then costs a delay, not lost work. The re-sent
+message gets a new id and keeps the work's request id; every consumer is
+idempotent (it skips a message id it has processed and commits only after
+storing the work), and the owner keeps the first result per request id.
 
 ## Deployment
 
