@@ -110,8 +110,11 @@
   (Firebase-native/real-time products → Firestore; financial/relational →
   Postgres; recorded in the product's `docs/decisions.md`). Shared **Aiven
   Redis** with `REDIS_DB`-index tenancy per product/config (discrete
-  `REDIS_*` vars). **Doppler** is the env source of truth — project per repo,
-  configs `dev / dev_personal / stg / prd`. Object storage: the sandbox
+  `REDIS_*` vars). **Doppler** is the env source of truth: one project per
+  repo with configs `dev` (plus personal branches), `stg`, `prd` and `ci`.
+  Every deployed surface reads `stg`; `prd` stays empty while products have
+  no production; `ci` holds only what GitHub Actions needs. Object storage:
+  the sandbox
   project's default **Cloud Storage** bucket with per-product/env prefixes.
   Self-host compose bundles its own stores.
 - Protocols: **HTTP/JSON is the default product API**; gRPC is a
@@ -133,18 +136,28 @@
   `KAFKA_PASSWORD`, `KAFKA_SSL_CA` (identical names across every language
   client). Each consumer runs its own consumer group. The canonical shape is
   gateway `api/<gateway>` → processing `api/<processor>` → `api/common`.
+  **Every product shares one Kafka service** (like the shared Redis): its
+  lanes, envelope, limits, scale-to-zero wake-ups and keep-alive owner are
+  in [shared-messaging.md](shared-messaging.md); a product never creates its
+  own topics. Only the deployed `stg` services use the shared service; local
+  compose and self-host stacks run their own broker.
 - **Kafka consumers need a running workload.** A Kafka message does not
   start a Cloud Run instance that has scaled to zero, and under the default
   request-based billing an instance gets no CPU outside a request, so a
   consumer on a default Cloud Run service stops consuming. Every Kafka
-  consumer runs as one of:
-  - a **Cloud Run worker pool** (the default: always-on, no HTTP ingress);
+  consumer runs as one of, cheapest first:
+  - a Cloud Run service at `min-instances 0` with instance-based billing
+    and **wake-ups** (the default on the shared bus): whatever publishes
+    for the consumer sends it a `GET /health` that carries no data, and
+    the owner's sweep re-wakes services while work is in flight
+    ([shared-messaging.md](shared-messaging.md), "Scale to zero");
+  - a **Cloud Run worker pool** (always on, no HTTP ingress);
   - a Cloud Run service with `min-instances >= 1` **and** instance-based
-    billing (CPU always allocated);
-  - another explicit wake-up path, documented in the product's
-    `docs/deployment.md` with how queued messages are drained after a wake.
+    billing (CPU always allocated).
 
-  Record the always-on cost against any free-tier goal. See Google's
+  An always-on choice needs a latency reason and its monthly cost in the
+  product's `docs/decisions.md`; document the choice in
+  `docs/deployment.md`. See Google's
   [instance autoscaling](https://docs.cloud.google.com/run/docs/about-instance-autoscaling)
   notes for the scale-from-zero and background-CPU limits.
 - **gRPC s2s client resilience on Cloud Run**: Cloud Run

@@ -18,6 +18,10 @@ that do not exist yet.
 - Read
   [references/telemetry-and-environment.md](references/telemetry-and-environment.md)
   for OpenTelemetry and environment-variable conventions.
+- Read [references/shared-messaging.md](references/shared-messaging.md)
+  whenever a product uses Kafka (`capabilities.kafka` in its manifest):
+  every CueLABS product shares one Kafka service, its three lanes, its
+  envelope and its operating rules.
 
 ## Workflow
 

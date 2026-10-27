@@ -31,9 +31,12 @@ whole system and adds the patterns a design needs on top.
 3. **Asynchronous by default.** Services hand work to each other through a
    durable queue. Every synchronous internal call is named, justified, and
    listed as a decision.
-4. **Config flows outward as events.** The owner publishes shared
-   configuration through a transactional outbox to compacted topics;
-   consumers keep an in-memory copy and never query the owner.
+4. **Config flows outward, never by query.** The owner sends the
+   configuration a decision needs inside the request, or rewrites a
+   snapshot object in storage and announces the change with an event;
+   consumers keep an in-memory copy and never query the owner. Don't depend
+   on compacted topics: a shared or small queue service may not offer
+   them.
 5. **Users see progress, not a hanging request.** Every asynchronous step
    has a status row owned by the CRUD service that the client polls, with a
    push notification when the client may be in the background.
@@ -96,7 +99,7 @@ service keeps its port.
 | Browser or app to backend | HTTPS/JSON on one API host, routed by path at a load balancer. The browser runs the app and calls the API directly (CORS allowlist); the web server only serves the app and server-renders public pages |
 | Sign-in | The client signs in with the identity provider's SDK and sends its ID token; services verify tokens locally with the provider's public keys |
 | File upload | Create-then-upload with an **upload ticket** (Patterns) |
-| Service to service | The queue (Kafka by default). No gRPC between services |
+| Service to service | The queue (Kafka by default). No gRPC between services. The one exception is a wake-up call, carrying no data, that starts a consumer scaled to zero (Deployment) |
 | A call that needs its answer inline and targets a stateless callee (a probe), or a read against the read service | Synchronous HTTPS with the platform's service identity; list it as a decision |
 | Third party calls us (webhooks) | Through the load balancer to the owner of the affected data: verify the signature, store the raw event, publish it; a processing service interprets it |
 | We call a third party to fetch data | From the service holding the credential, usually the CRUD owner (fetch and relay); decisions about the fetched data still go through processing |
@@ -116,7 +119,7 @@ through the load balancer; outbound provider calls leave directly.
 - A processing service owns nothing. It receives reference data inside the
   message (scoped to what the decision needs, e.g. fingerprints for the
   relevant date window only), or by pointer when large. Its only state is
-  in-memory and rebuildable from compacted topics.
+  in-memory and rebuildable from the next request or a config snapshot.
 - Object storage is split by prefix: `tmp/` for bytes awaiting a decision
   (short lifetime), durable prefixes for confirmed media and artifacts.
 - The cache holds rate limits and quotas; it is never a source of truth.
@@ -139,7 +142,10 @@ never holds a key that can mint tickets. Tickets also scope retakes (one pose,
 one page) and replace a shared session secret.
 
 **Claim-check.** Bytes live in object storage; messages carry pointers.
-Any payload that could exceed a few hundred KB goes by pointer.
+Any payload that could exceed a few hundred KB goes by pointer. When the
+queue is shared with other products, every payload that holds more than
+identifiers, enums, counts and timestamps goes by pointer, so storage
+permissions, not topic permissions, keep each product's data private.
 
 **Raw-data lifetime.** Delete temporary bytes as soon as the decision is
 recorded (by the owner), sweep leftovers on a short schedule, and keep a
@@ -160,17 +166,37 @@ instead of computing inline.
 **Raw provider events.** Store every inbound webhook before acting on it,
 unique by the provider's event id.
 
-**Topic naming.** `<product>.<domain>.<event>`, JSON validated against JSON
-Schemas kept with the owner (`api/common/contract/`). Retention follows
-sensitivity: personal or financial payloads 24 h; operational handoffs 7 d;
-config compacted. Grant each service's queue user only its topics.
+**Event naming.** Every message's type is `<product>.<domain>.<event>`,
+JSON validated against JSON Schemas kept with the owner
+(`api/common/contract/`). A product with its own queue service may give
+each event its own topic. On a **shared** queue service, products share a
+few topics ("lanes", by direction) and consumers read the type first,
+skipping other products' events and events they don't handle without
+validating or logging them. Follow the organization's messaging profile
+for lane names and limits when it has one (for CueLABS™:
+`cuelabs-delivery-standard/references/shared-messaging.md`). Retention
+follows sensitivity and the service's limits; design so that nothing
+depends on the queue keeping a message for more than a day.
+
+**Re-send from the owner.** The owner stores what each in-flight request
+was built from (the upload pointer, the reference data inputs). A sweep
+queues a request again, once, when its result is overdue, before it fails
+the item. A lost message then costs a delay, not lost work. The re-sent
+message gets a new id and keeps the work's request id; every consumer is
+idempotent (it skips a message id it has processed and commits only after
+storing the work), and the owner keeps the first result per request id.
 
 ## Deployment
 
-- Queue consumers never scale to zero: a message does not wake a scaled-to-
-  zero instance. Run them as worker pools, or keep the consuming service at
-  a minimum of one instance with instance-based billing (CPU always
-  allocated). Say what that costs against any free-tier goal.
+- Queue consumers never scale to zero by themselves: a message does not
+  wake a scaled-to-zero instance. Cheapest first: run them at zero with
+  **wake-ups** (CPU always allocated while an instance is up; whatever
+  publishes for a consumer sends it a request that carries no data,
+  `GET /health`, so the platform starts an instance, and the owner's sweep
+  re-wakes services while its store shows work in flight); as worker
+  pools; or at a minimum of one instance with instance-based billing (CPU
+  always allocated). An always-on choice needs a latency reason; say what
+  it costs against the product's cost goal.
 - Request-driven services with no consumer may scale to zero.
 - Scheduled lookup-then-write work runs as scheduled jobs from the owner's
   image; scheduled decisions run from the processing image.

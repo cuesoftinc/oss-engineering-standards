@@ -49,7 +49,9 @@ to change, fix, bootstrap, or standardize the repository.
   only when selecting or aligning toolchain versions; verify unstable versions
   from their primary sources before changing them.
 - Use `assets/profiles/base.yaml` for portable OSS defaults and
-  `assets/profiles/cuelabs.yaml` for CueLABS-specific policy.
+  `assets/profiles/cuelabs.yaml` for CueLABS-specific policy. Its
+  `messaging` block means every CueLABS product with Kafka shares one
+  service; follow `$cuelabs-delivery-standard`'s `shared-messaging.md`.
 - Validate `.cuelabs/project.yaml` against
   `assets/schema/project.schema.json`.
 - Use `assets/templates/` as the source for profile-managed repository files.

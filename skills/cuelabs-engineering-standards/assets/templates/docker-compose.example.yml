@@ -16,11 +16,25 @@ services:
   #   ...
   #
   # Multi-service pipelines (e.g. a Node gateway + a Python processing
-  # service, connected by Aiven Kafka rather than a direct call) add a block
-  # per real service the same way — see repository-and-services.md's
-  # "Multi-service pipelines" section. Kafka itself is never a compose
-  # service; it's the managed Aiven instance, wired via KAFKA_BROKERS/
-  # KAFKA_USERNAME/KAFKA_PASSWORD/KAFKA_SSL_CA in each service's environment.
+  # service, connected by Kafka rather than a direct call) add a block per
+  # real service the same way; see repository-and-services.md's
+  # "Multi-service pipelines" section. A product on Kafka also runs its own
+  # single local broker; the shared bus is for deployed services only
+  # (shared-messaging.md, "Environments"). Its services set
+  # KAFKA_BROKERS: kafka:9092 and leave KAFKA_USERNAME unset (plain text):
+  # kafka:
+  #   image: apache/kafka:4.4.0
+  #   environment:
+  #     KAFKA_NODE_ID: 1
+  #     KAFKA_PROCESS_ROLES: broker,controller
+  #     KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+  #     KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+  #     KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #     KAFKA_NUM_PARTITIONS: 2
+  #   restart: unless-stopped
 
   web:
     image: cuesoft/REPO-web:latest

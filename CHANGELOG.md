@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-10-27
+
+### Added
+
+- Shared Kafka bus contract: three lanes, envelope, operations (#145).
+- Product parameter P-17 records each product's bus use (#145).
+- Local compose template runs its own Kafka broker (#145).
+
+### Changed
+
+- Kafka consumers default to scale-to-zero with wake-ups (#145).
+- System-design method drops compacted topics; re-sends use new ids (#145).
+- System-design example uses the shared lanes and wake-ups (#145).
+- Doppler configs listed as `dev`, `stg`, `prd` and `ci` (#145).
+- Install examples pin v2.2.0 (#145).
+
+### Fixed
+
+- Root `.env.example` template uses the standard section headers (#145).
+
 ## [2.1.1] - 2026-10-02
 
 ### Fixed
