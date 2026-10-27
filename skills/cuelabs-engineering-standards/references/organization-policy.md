@@ -67,7 +67,7 @@ internals; this table is the only place the provider is named.
 | Observability gateway | OTLP receiver on 4317 (gRPC) / 4318 (HTTP) with an ingest-key header; reached through `OTEL_EXPORTER_OTLP_ENDPOINT` / `OTEL_EXPORTER_OTLP_HEADERS` | upstat |
 | Product analytics events | Public `/v1/events` API (plus `/v1/stats`, `/v1/query`); the provider repo's `docs/api.md` consumer registry is the master event registry | upstat |
 | Identity | Firebase project `sandbox-e306a` (Google sign-in only); `account.cuesoft.io` is a planned facade over it | CueLABS™ |
-| Infrastructure | `cuesoft-iac` Pulumi ecosystem provisions Cloud Run, App Hosting, and shared stores | CueLABS™ |
+| Infrastructure | The Pulumi infrastructure-as-code (IaC) stack provisions Cloud Run, App Hosting, and shared stores | CueLABS™ |
 | Message bus | One shared Kafka service: lanes, envelope and operations in `$cuelabs-delivery-standard`'s `shared-messaging.md`; each product records P-17 | CueLABS™ (keep-alive owner named in each product's decisions) |
 
 A new product consumes these through configuration only. Moving a role to a
@@ -82,7 +82,7 @@ The canonical text lives in `$cuelabs-delivery-standard`
 telemetry, or environment-variable work. The rules an audit or bootstrap
 needs without it:
 
-- Backends deploy to GCP Cloud Run via the `cuesoft-iac` Pulumi ecosystem;
+- Backends deploy to GCP Cloud Run via the Pulumi IaC stack;
   frontends deploy to Firebase App Hosting; the Helm chart is the self-host
   path. Serverless functions are for probe/health-check endpoints only.
 - One environment: `stg` (the sandbox). Doppler is the source of values.
@@ -132,7 +132,7 @@ deep-dive sections slot between the fixed ones):
   surface · Gap analysis · Conventions · dated expansions.
 - `engineering.md`: Error catalog · Authz matrix · Rate limits · Testing ·
   Logging · Acceptance · CORS contract.
-- `deployment.md`: Topology · Provisioning (cuesoft-iac) · CI/CD (deploy on merge to `main`)
+- `deployment.md`: Topology · Provisioning (IaC) · CI/CD (deploy on merge to `main`)
   · Runtime contract (sizing/domains/rollback) · Not in this phase.
 - `design.md`: Principles · Foundations (incl. the shared block) · Components ·
   MI catalog · Accessibility & motion · Platform parity · Prototype journeys ·

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Skills describe provisioning without naming internal repositories.
+
 ## [2.3.0] - 2026-10-27
 
 ### Changed
