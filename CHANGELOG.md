@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- API services deploy on merge to `main`; no tags or releases.
+- Every Cloud Run service scales to zero; no worker pools.
+- Kafka consumers run at min 0 with wake-ups only.
+- Actions pin the latest major tag, never a commit sha.
+
+### Added
+
+- Cloud Run services declared in `cuesoft-iac` with placeholder images first.
+- Docker Hub credentials come from Doppler `admin/ci` references.
+- Shared `cuesoft` Postgres user with a one-time ownership handover.
+- Sweeps run as paused Cloud Scheduler jobs on `/internal/jobs/<name>`.
+- Media reads and writes use signed URLs only.
+- Web reaches the API through its own `/api/v1` proxy.
+- Deployed `stg` estate runs no Envoy.
+- Kafka falls back to client certificates when SASL is refused.
+
 ## [2.2.0] - 2026-10-27
 
 ### Added

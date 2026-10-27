@@ -24,11 +24,24 @@
   Deploys are scoped by surface: the WEBSITES ride Firebase App Hosting
   automatic rollouts from `main` (declared as appHosting backends in
   `cuesoft-iac`, `rootDirectory: /web`, Cloudflare-proxied; a web-visible
-  merge is live within about 30 minutes). API-SERVICE deploys are the
-  tag-gated path: they fire **only on `v*` tag creation**, gated by a
-  tag ruleset (owner-level) + protected GitHub environment, via
-  `release.yml` (added with the product's deploy phase). GitHub Actions
-  itself never deploys the sites.
+  merge is live within about 30 minutes). API-SERVICE deploys run on
+  **merge to `main`**: `release.yml` (added with the product's deploy
+  phase) triggers on `push` to `main` filtered to `api/**`, pushes
+  `cuesoft/<repo>-api-<service>` images tagged with the short sha and
+  `latest`, and points the existing Cloud Run services at the new digests.
+  No version tags or GitHub releases are cut while products have no
+  production. GitHub Actions itself never deploys the sites.
+- **Cloud Run resources come from `cuesoft-iac`.** Each service is declared
+  there with `image: us-docker.pkg.dev/cloudrun/container/hello` only until
+  the product's image is on Docker Hub, then `cuesoft/<image>:latest`; CI
+  deploys by digest afterwards. `minInstances` is omitted (Cloud Run's
+  default is 0): every service scales to zero, with no always-on instance
+  and no worker pool. `DOCKER_USERNAME` and `DOCKER_PASSWORD` live in
+  Doppler `admin/ci` and reach each product's `ci` config as references.
+- **Sweeps are Cloud Scheduler jobs**: each calls
+  `POST /internal/jobs/<name>` on `api-common` with an OIDC token for the
+  product's runtime account, and is created paused in `cuesoft-iac` until
+  its handler has shipped.
 - **GitHub Actions standard (uniform across repos)**:
   standardized workflow families with identical shared jobs and conventions —
   `.github/workflows/build-and-test.yml` (workflow name `build-and-test`;
@@ -42,7 +55,7 @@
   phase; mobile jobs land when mobile implementation begins. Once present,
   stack-equivalent API/mobile jobs follow the same fleet naming, setup, cache,
   and command shape; action steps
-  pin the LATEST major of official actions — currently
+  pin the LATEST major tag of official actions, never a commit sha — currently
   `actions/checkout@v7`, `actions/setup-node@v7`,
   `actions/upload-artifact@v7` (verify via
   `gh api repos/actions/<name>/releases/latest` when touching workflows,
@@ -56,8 +69,8 @@
   Build (TEST_MODE with `NEXT_PUBLIC_TEST_MODE: "1"`)); the e2e job builds
   in TEST_MODE, installs chromium, runs `test:e2e` with TEST_MODE+CI env,
   and uploads `web/playwright-report` as artifact `playwright-report`
-  (retention 7) on failure) and the tag-gated `release.yml` (added with the
-  product's deploy phase). Workflow files beyond these families and
+  (retention 7) on failure) and the `release.yml` that deploys the APIs on
+  merge to `main` (added with the product's deploy phase). Workflow files beyond these families and
   explicitly ratified surface workflows are a standards deviation and need
   ratification. CodeQL runs via GitHub DEFAULT SETUP
   (a repo setting, `gh api repos/<org>/<repo>/code-scanning/default-setup`),
@@ -110,13 +123,21 @@
   (Firebase-native/real-time products → Firestore; financial/relational →
   Postgres; recorded in the product's `docs/decisions.md`). Shared **Aiven
   Redis** with `REDIS_DB`-index tenancy per product/config (discrete
-  `REDIS_*` vars). **Doppler** is the env source of truth: one project per
+  `REDIS_*` vars). In `stg`, Firestore products use the sandbox's
+  `sandbox` database and Postgres products get a database on the shared
+  Aiven `sandbox-db`, all connecting as the shared `cuesoft` user (no
+  per-product database users). `cuesoft-iac` creates the database owned by
+  `avnadmin`; `avnadmin` runs `ALTER DATABASE <product> OWNER TO cuesoft;`
+  once, so the app's migrations own their tables and `FORCE ROW LEVEL
+  SECURITY` applies (`cuesoft` has no `BYPASSRLS`). **Doppler** is the env source of truth: one project per
   repo with configs `dev` (plus personal branches), `stg`, `prd` and `ci`.
   Every deployed surface reads `stg`; `prd` stays empty while products have
   no production; `ci` holds only what GitHub Actions needs. Object storage:
   the sandbox
-  project's default **Cloud Storage** bucket with per-product/env prefixes.
-  Self-host compose bundles its own stores.
+  project's default **Cloud Storage** bucket with per-product/env prefixes,
+  read and written through **signed URLs only** (no public objects).
+  Self-host compose bundles its own stores. The web app reaches the API
+  through its own `/api/v1` proxy to `api-common`.
 - Protocols: **HTTP/JSON is the default product API**; gRPC is a
   standardized option wherever a domain needs streaming, telemetry ingest,
   high-throughput internal s2s, or another documented transport requirement.
@@ -125,6 +146,7 @@
   end-to-end HTTP/2 (h2c) for gRPC services. A browser gRPC-Web path needs
   Envoy; prefer HTTP/JSON for browser traffic, and a product's self-host Helm
   chart deploys Envoy only while that product exposes a gRPC-Web path.
+  The deployed `stg` estate runs no Envoy.
 - **Pub/sub (Aiven Kafka) is a standardized option** for async multi-language
   processing pipelines where durability across a consumer restart matters
   more than a live round-trip — e.g. a Node gateway handing a file to a
@@ -145,19 +167,13 @@
   start a Cloud Run instance that has scaled to zero, and under the default
   request-based billing an instance gets no CPU outside a request, so a
   consumer on a default Cloud Run service stops consuming. Every Kafka
-  consumer runs as one of, cheapest first:
-  - a Cloud Run service at `min-instances 0` with instance-based billing
-    and **wake-ups** (the default on the shared bus): whatever publishes
-    for the consumer sends it a `GET /health` that carries no data, and
-    the owner's sweep re-wakes services while work is in flight
-    ([shared-messaging.md](shared-messaging.md), "Scale to zero");
-  - a **Cloud Run worker pool** (always on, no HTTP ingress);
-  - a Cloud Run service with `min-instances >= 1` **and** instance-based
-    billing (CPU always allocated).
-
-  An always-on choice needs a latency reason and its monthly cost in the
-  product's `docs/decisions.md`; document the choice in
-  `docs/deployment.md`. See Google's
+  consumer runs as a Cloud Run service at min 0 with instance-based billing
+  and **wake-ups**: whatever publishes for the consumer sends it a
+  `GET /health` that carries no data, and the owner's sweep re-wakes
+  services while work is in flight
+  ([shared-messaging.md](shared-messaging.md), "Scale to zero"). Worker
+  pools and `min-instances >= 1` are not used: nothing is always on.
+  Document the wake-up wiring in `docs/deployment.md`. See Google's
   [instance autoscaling](https://docs.cloud.google.com/run/docs/about-instance-autoscaling)
   notes for the scale-from-zero and background-CPU limits.
 - **gRPC s2s client resilience on Cloud Run**: Cloud Run

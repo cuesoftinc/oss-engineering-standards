@@ -87,7 +87,8 @@ needs without it:
   path. Serverless functions are for probe/health-check endpoints only.
 - One environment: `stg` (the sandbox). Doppler is the source of values.
 - CI is `.github/workflows/build-and-test.yml` with one job per build-ready
-  surface, plus a tag-gated `release.yml` once the deploy phase lands. Other
+  surface, plus a `release.yml` that deploys the APIs on merge to `main`
+  once the deploy phase lands. Other
   workflow files need ratification.
 - HTTP/JSON is the default API; gRPC and pub/sub (Kafka) are standardized
   options for documented transport needs. Every product on Kafka uses the
@@ -131,7 +132,7 @@ deep-dive sections slot between the fixed ones):
   surface · Gap analysis · Conventions · dated expansions.
 - `engineering.md`: Error catalog · Authz matrix · Rate limits · Testing ·
   Logging · Acceptance · CORS contract.
-- `deployment.md`: Topology · Provisioning (cuesoft-iac) · CI/CD (tag-gated)
+- `deployment.md`: Topology · Provisioning (cuesoft-iac) · CI/CD (deploy on merge to `main`)
   · Runtime contract (sizing/domains/rollback) · Not in this phase.
 - `design.md`: Principles · Foundations (incl. the shared block) · Components ·
   MI catalog · Accessibility & motion · Platform parity · Prototype journeys ·

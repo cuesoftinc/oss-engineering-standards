@@ -151,5 +151,7 @@ consumer lag.
   deleted after a day (a sweep plus a bucket lifecycle rule).
 - Connection settings are the fleet names: `KAFKA_BROKERS`,
   `KAFKA_USERNAME`, `KAFKA_PASSWORD`, `KAFKA_SSL_CA`, with SASL/SCRAM-SHA-256
-  over TLS, using the product's own Kafka user. With `KAFKA_USERNAME` unset
-  (a local or self-host broker) clients connect in plain text.
+  over TLS, using the product's own Kafka user. If the Aiven plan refuses
+  SASL, client certificates and keys from Doppler take its place. With
+  `KAFKA_USERNAME` unset (a local or self-host broker) clients connect in
+  plain text.
