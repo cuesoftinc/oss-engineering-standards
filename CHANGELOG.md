@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-10-27
+
+### Changed
+
+- Web origin and test mode environment names.
+
 ## [2.4.0] - 2026-10-27
 
 ### Changed
