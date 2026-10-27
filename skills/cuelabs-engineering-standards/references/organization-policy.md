@@ -68,6 +68,7 @@ internals; this table is the only place the provider is named.
 | Product analytics events | Public `/v1/events` API (plus `/v1/stats`, `/v1/query`); the provider repo's `docs/api.md` consumer registry is the master event registry | upstat |
 | Identity | Firebase project `sandbox-e306a` (Google sign-in only); `account.cuesoft.io` is a planned facade over it | CueLABS™ |
 | Infrastructure | `cuesoft-iac` Pulumi ecosystem provisions Cloud Run, App Hosting, and shared stores | CueLABS™ |
+| Message bus | One shared Kafka service: lanes, envelope and operations in `$cuelabs-delivery-standard`'s `shared-messaging.md`; each product records P-17 | CueLABS™ (keep-alive owner named in each product's decisions) |
 
 A new product consumes these through configuration only. Moving a role to a
 different provider is an ecosystem change to this table, not a per-product
@@ -89,7 +90,8 @@ needs without it:
   surface, plus a tag-gated `release.yml` once the deploy phase lands. Other
   workflow files need ratification.
 - HTTP/JSON is the default API; gRPC and pub/sub (Kafka) are standardized
-  options for documented transport needs.
+  options for documented transport needs. Every product on Kafka uses the
+  shared message bus.
 - Every service instruments with OpenTelemetry, exporting OTLP directly and
   only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set.
 - Environment-variable names are fleet-wide; never introduce a second name

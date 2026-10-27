@@ -89,9 +89,10 @@ The bus has no registry here. Each product's own docs carry its part:
 - `docs/system-design.md` §5.3 lists **only that product's events**, each
   with its lane, key, producer and consumers, and names this page as the
   source of lanes, envelope and limits.
-- `docs/decisions.md` records "uses the shared bus", the product's Kafka
-  user and consumer groups, and **which product is the keep-alive owner**
-  (see Operations).
+- `docs/decisions.md` records parameter P-17 ("uses the shared bus", the
+  product's Kafka user and consumer groups, and **which product is the
+  keep-alive owner**; see Operations and the engineering skill's
+  `product-decisions.md`).
 - A product joining the bus checks its expected message rate against the
   throughput limit, and moves bulk data off the bus before it joins.
 
@@ -99,6 +100,15 @@ Telemetry (spans, logs, metrics, product events, usage bytes) goes from the
 ingest gateway to the OpenTelemetry Collector and on to its store directly,
 never through the bus: its volume alone would exceed the service's
 throughput.
+
+## Environments
+
+Only the deployed services (Doppler `stg`) connect to the shared service.
+Local compose stacks and self-host installs run their own single broker
+with the same three lane names, so code and configuration are identical
+everywhere; `dev` configs never hold the shared service's credentials. A
+laptop that joined a shared consumer group would take over its partitions
+and process `stg` work.
 
 ## Scale to zero
 
@@ -141,4 +151,5 @@ consumer lag.
   deleted after a day (a sweep plus a bucket lifecycle rule).
 - Connection settings are the fleet names: `KAFKA_BROKERS`,
   `KAFKA_USERNAME`, `KAFKA_PASSWORD`, `KAFKA_SSL_CA`, with SASL/SCRAM-SHA-256
-  over TLS, using the product's own Kafka user.
+  over TLS, using the product's own Kafka user. With `KAFKA_USERNAME` unset
+  (a local or self-host broker) clients connect in plain text.

@@ -189,13 +189,14 @@ storing the work), and the owner keeps the first result per request id.
 ## Deployment
 
 - Queue consumers never scale to zero by themselves: a message does not
-  wake a scaled-to-zero instance. Run them as worker pools; or at a minimum
-  of one instance with instance-based billing (CPU always allocated); or at
-  zero with **wake-ups**: CPU always allocated while an instance is up, and
-  whatever publishes for a consumer sends it a request that carries no data
-  (`GET /health`) afterwards so the platform starts an instance, with the
-  owner's sweep re-waking services while its store shows work in flight.
-  Say what the choice costs against the product's cost goal.
+  wake a scaled-to-zero instance. Cheapest first: run them at zero with
+  **wake-ups** (CPU always allocated while an instance is up; whatever
+  publishes for a consumer sends it a request that carries no data,
+  `GET /health`, so the platform starts an instance, and the owner's sweep
+  re-wakes services while its store shows work in flight); as worker
+  pools; or at a minimum of one instance with instance-based billing (CPU
+  always allocated). An always-on choice needs a latency reason; say what
+  it costs against the product's cost goal.
 - Request-driven services with no consumer may scale to zero.
 - Scheduled lookup-then-write work runs as scheduled jobs from the owner's
   image; scheduled decisions run from the processing image.

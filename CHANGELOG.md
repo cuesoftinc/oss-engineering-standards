@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-10-27
+
+### Added
+
+- Shared Kafka bus contract: three lanes, envelope, operations (#145).
+- Product parameter P-17 records each product's bus use (#145).
+- Local compose template runs its own Kafka broker (#145).
+
+### Changed
+
+- Kafka consumers default to scale-to-zero with wake-ups (#145).
+- System-design method drops compacted topics; re-sends use new ids (#145).
+- System-design example uses the shared lanes and wake-ups (#145).
+- Doppler configs listed as `dev`, `stg`, `prd` and `ci` (#145).
+- Install examples pin v2.2.0 (#145).
+
+### Fixed
+
+- Root `.env.example` template uses the standard section headers (#145).
+
 ## [2.1.1] - 2026-10-02
 
 ### Fixed
@@ -18,19 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [2.1.0] - 2026-09-26
 
 ### Added
-
-- Shared message bus for CueLABS products
-  (`cuelabs-delivery-standard/references/shared-messaging.md`, and the
-  `messaging` block in the `cuelabs` profile). Products share one Kafka
-  service through three lanes
-  (`cuelabs.uploads`, `cuelabs.requests`, `cuelabs.results`), with event
-  types `<product>.<domain>.<event>`, pointer-only payloads, no compacted
-  topics, one Kafka user per product, scale-to-zero wake-ups, re-send from
-  the owner's store, and a single keep-alive owner.
-- `cuelabs-system-design` method: generic rules for sharing a queue
-  between products (lanes, skip-what-isn't-yours, pointers across
-  products), config without compacted topics, re-send from the owner, and
-  scale-to-zero consumers with wake-ups.
 
 - `cuelabs-system-design` skill: designs a product's system from a PRD, a
   repository, or a description, following the language-by-role pipeline

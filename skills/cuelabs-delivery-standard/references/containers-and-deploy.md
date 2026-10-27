@@ -50,6 +50,11 @@ Each repo has a root `docker-compose.yml` and a compose-driven `Makefile`
   `deploy/helm/envoy/envoy.yaml`, backend network-aliased to the cluster
   target); Envoy takes the next free port slot after the APIs and the web image
   gets `NEXT_PUBLIC_ENVOY_URL` as a build arg.
+- **Kafka repos** — compose runs one local `apache/kafka` broker (KRaft,
+  plain text, 2 partitions per topic) and the services point `KAFKA_BROKERS`
+  at it with `KAFKA_USERNAME` unset; the Helm chart takes the operator's
+  broker through the same `KAFKA_*` values. Neither ever uses the shared
+  bus (`shared-messaging.md`, "Environments").
 
 **Port convention (parity across repos):** so muscle memory carries between
 services, every repo publishes the same host ports — `api/common` → **8080**,

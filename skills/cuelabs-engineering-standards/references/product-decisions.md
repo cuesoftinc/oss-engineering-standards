@@ -39,6 +39,7 @@ when the surface becomes `active`.
 | P-14 | Discord channel | `#<product>-lab`; must exist on the CueLABS™ server before copy ships | Marketing copy |
 | P-15 | Lint extensions | Each addition to the shared `eslint.config.mjs` base, with its reason, or `none` | Web tooling |
 | P-16 | Mobile application ID | Reverse-DNS bundle/application id for the `prod` flavor (`dev` appends `.dev`) | Mobile flavors |
+| P-17 | Messaging | `none`, or `shared bus` with the product's Kafka user, its consumer groups, and whether it is the bus's keep-alive owner | Backend, delivery, `shared-messaging.md` |
 
 ## Recording format
 

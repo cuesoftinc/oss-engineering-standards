@@ -34,6 +34,9 @@ never ALLOWED_ORIGINS/FRONTEND_URL) · `REDIS_HOST/PORT/USERNAME/PASSWORD/TLS/DB
 `GOOGLE_CLOUD_PROJECT` · `SERVICE_TOKEN_HASH` (server side of s2s token
 validation) · DB: `DATABASE_URL` (Postgres) / ADC for Firestore
 (`MONGO_URI`+`MONGO_DB` only in repos still on MongoDB) ·
-`KAFKA_BROKERS`/`KAFKA_USERNAME`/`KAFKA_PASSWORD`/`KAFKA_SSL_CA` (Aiven Kafka
-pub/sub, identical names in every language client). CORS behaviour contract
+`KAFKA_BROKERS`/`KAFKA_USERNAME`/`KAFKA_PASSWORD`/`KAFKA_SSL_CA` (Kafka
+pub/sub, identical names in every language client) · `WAKE_<TARGET>_URL`
+(base URL of a consumer a service wakes; unset means always running) ·
+`AIVEN_API_TOKEN`/`AIVEN_PROJECT`/`AIVEN_KAFKA_SERVICE` (the shared bus's
+keep-alive sweep only). CORS behaviour contract
 lives in each repo's engineering.md ("CORS contract" section).

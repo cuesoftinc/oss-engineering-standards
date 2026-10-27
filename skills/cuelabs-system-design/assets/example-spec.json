@@ -87,9 +87,9 @@
       "columns": ["Service", "Language · role", "Job", "Runs as (cloud)", "Port"],
       "rows": [
         ["web", "Next.js", "Landing page and dashboard", "App Hosting", {"text": "3000", "class": "num"}],
-        ["api/common", "Go · CRUD", "Auth, ledger, receipts, review and confirm; authorizes every upload and issues its ticket; outbox; saves every decision Python makes", "Cloud Run service, min 1", {"text": "8080", "class": "num"}],
+        ["api/common", "Go · CRUD", "Auth, ledger, receipts, review and confirm; authorizes every upload and issues its ticket; outbox; saves every decision Python makes", "Cloud Run service, min 0 + wake-ups", {"text": "8080", "class": "num"}],
         ["api/intake", "Node · gateway", "Verifies the upload ticket, checks the file, writes it to temporary storage, sends a pointer to Kafka. Stateless", "Cloud Run service, 0–5", {"text": "8081", "class": "num"}],
-        ["api/process", "Python · processing", "Parses receipts, categorizes, flags duplicates and anomalies", "Worker pool", {"text": "8082", "class": "num"}]
+        ["api/process", "Python · processing", "Parses receipts, categorizes, flags duplicates and anomalies", "Cloud Run service, min 0 + wake-ups", {"text": "8082", "class": "num"}]
       ]
     },
     {
@@ -129,14 +129,13 @@
     {
       "id": "topics",
       "type": "table",
-      "title": "Kafka topics",
-      "intro": "Every topic starts with the product name, carries JSON validated against a schema in <code>api/common/contract/</code>, and keeps financial data for 24 hours only.",
-      "columns": ["Topic", "Key", "Kept for", "Producer → consumers"],
+      "title": "Events on the shared bus",
+      "intro": "Every event type starts with the product name, carries JSON validated against a schema in <code>api/common/contract/</code>, and holds identifiers only; anything else goes by pointer. Nothing relies on the bus keeping a message for more than a day.",
+      "columns": ["Event", "Lane", "Key", "Producer → consumers"],
       "rows": [
-        ["ledgerline.upload.received", "ticket id", "24 h", "intake → common"],
-        ["ledgerline.import.ready", "receipt id", "24 h", "common (outbox) → process"],
-        ["ledgerline.import.processed", "receipt id", "24 h", "process → common"],
-        ["ledgerline.config.categories", "category id", "compacted", "common (outbox) → process"]
+        ["ledgerline.upload.received", "cuelabs.uploads", "ticket id", "intake → common"],
+        ["ledgerline.import.ready", "cuelabs.requests", "receipt id", "common (outbox) → process"],
+        ["ledgerline.import.processed", "cuelabs.results", "receipt id", "process → common"]
       ]
     },
     {
@@ -150,7 +149,7 @@
         ["S-3", "Only <code>common</code> touches Postgres", "—"],
         ["S-4", "Upload tickets; the gateway is stateless", "Gateway with its own sign-in check"],
         ["S-5", "Photos in <code>tmp/</code> only until parsed", "Photos in Kafka messages"],
-        ["S-6", "<code>common</code> min 1; <code>process</code> as a worker pool", "Every service at min 0"]
+        ["S-6", "Consumers at min 0 with wake-ups; the owner's sweep re-wakes them while work is in flight", "<code>common</code> min 1 and <code>process</code> as a worker pool"]
       ]
     },
     {
@@ -158,7 +157,7 @@
       "type": "list",
       "title": "Still open",
       "items": [
-        {"title": "Kafka plan.", "text": "A free Kafka tier that powers off when idle can't back always-on consumers."},
+        {"title": "Keep-alive owner.", "text": "Which product's sweep keeps the shared bus awake?"},
         {"title": "AI consent wording.", "text": "The privacy page needs to say photos are processed by an AI provider."},
         {"title": "Offline capture.", "text": "Should the app queue photos while offline?"}
       ]
