@@ -9,21 +9,21 @@
 
 ## Canon
 
-- Backends deploy to GCP Cloud Run (provisioned via the `cuesoft-iac` Pulumi
-  ecosystem — never ad-hoc); frontends deploy to Firebase App Hosting; the
+- Backends deploy to GCP Cloud Run (provisioned via the Pulumi
+  infrastructure-as-code (IaC) stack — never ad-hoc); frontends deploy to Firebase App Hosting; the
   Helm chart remains the self-host path.
 - **Serverless functions are reserved for probe/health-check style endpoints
   only** — real request handling and business logic always live in a
   containerized `api/<service>`, never split out into an ad-hoc Cloud
   Function.
-- AI features use **Vertex AI** (Gemini via `aiplatform.googleapis.com`, ADC —
-  see `cuesoft-iac/functions/cueprise-gemini-proxy`); no consumer AI-vendor
+- AI features use **Vertex AI** (Gemini via `aiplatform.googleapis.com`, ADC,
+  through a server-side proxy under its own service account); no consumer AI-vendor
   API keys in cloud deployments. Self-host fallback: BYO Gemini/Groq env keys.
 - Environments & deploy gating: `stg` = sandbox is the ONLY environment for
   CueLABS™ products (no production); Doppler config `stg` holds its secrets.
   Deploys are scoped by surface: the WEBSITES ride Firebase App Hosting
   automatic rollouts from `main` (declared as appHosting backends in
-  `cuesoft-iac`, `rootDirectory: /web`, Cloudflare-proxied; a web-visible
+  the IaC stack, `rootDirectory: /web`, Cloudflare-proxied; a web-visible
   merge is live within about 30 minutes). API-SERVICE deploys run on
   **merge to `main`**: `release.yml` (added with the product's deploy
   phase) triggers on `push` to `main` filtered to `api/**`, pushes
@@ -31,7 +31,7 @@
   `latest`, and points the existing Cloud Run services at the new digests.
   No version tags or GitHub releases are cut while products have no
   production. GitHub Actions itself never deploys the sites.
-- **Cloud Run resources come from `cuesoft-iac`.** Each service is declared
+- **Cloud Run resources come from the IaC stack.** Each service is declared
   there with `image: us-docker.pkg.dev/cloudrun/container/hello` only until
   the product's image is on Docker Hub, then `cuesoft/<image>:latest`; CI
   deploys by digest afterwards. `minInstances` is omitted (Cloud Run's
@@ -40,7 +40,7 @@
   Doppler `admin/ci` and reach each product's `ci` config as references.
 - **Sweeps are Cloud Scheduler jobs**: each calls
   `POST /internal/jobs/<name>` on `api-common` with an OIDC token for the
-  product's runtime account, and is created paused in `cuesoft-iac` until
+  product's runtime account, and is created paused in the IaC stack until
   its handler has shipped.
 - **GitHub Actions standard (uniform across repos)**:
   standardized workflow families with identical shared jobs and conventions —
@@ -117,8 +117,8 @@
     `── section ──` comment headers; `web/.env.example` stays headerless.
   - **next.config**: `devIndicators: { position: "bottom-right" }` — keep
     the dev indicator, keep it out of content corners.
-- Transactional email: **Brevo REST API** only (`BREVO_API_KEY/FROM_EMAIL/
-  FROM_NAME` via Doppler) — **no SMTP** in any CueLABS™ product.
+- Transactional email: **Brevo REST API** only (`BREVO_API_KEY`,
+  `BREVO_FROM_EMAIL` and `BREVO_FROM_NAME` via Doppler) — **no SMTP** in any CueLABS™ product.
 - Data plane (cloud): per-product choice of **Aiven Postgres** or **Firestore**
   (Firebase-native/real-time products → Firestore; financial/relational →
   Postgres; recorded in the product's `docs/decisions.md`). Shared **Aiven
@@ -126,7 +126,7 @@
   `REDIS_*` vars). In `stg`, Firestore products use the sandbox's
   `sandbox` database and Postgres products get a database on the shared
   Aiven `sandbox-db`, all connecting as the shared `cuesoft` user (no
-  per-product database users). `cuesoft-iac` creates the database owned by
+  per-product database users). The IaC stack creates the database owned by
   `avnadmin`; `avnadmin` runs `ALTER DATABASE <product> OWNER TO cuesoft;`
   once, so the app's migrations own their tables and `FORCE ROW LEVEL
   SECURITY` applies (`cuesoft` has no `BYPASSRLS`). **Doppler** is the env source of truth: one project per
