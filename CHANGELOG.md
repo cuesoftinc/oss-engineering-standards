@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Kafka client-certificate names and auth-mode order in the env table.
 - Browser Paystack key uses the `NEXT_PUBLIC_` or `VITE_` prefix.
 - System design deployment step drops worker pools.
+- Env table drops local JWT, session and OAuth names for Firebase sign-in.
+- Env table states defaults and which names are required.
+- Env template uses `API_URL` and Firebase emulator names.
+- Skills describe provisioning without naming internal repositories.
 
 ## [2.3.0] - 2026-10-27
 

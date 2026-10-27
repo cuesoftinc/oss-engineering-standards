@@ -20,7 +20,7 @@ services:
     healthPath: /
     env:
       PORT: "3000"
-    # Inject secrets (JWT_SECRET, API keys, SMTP creds) from a Kubernetes Secret
+    # Inject secrets (API keys, tokens, passwords) from a Kubernetes Secret
     # rather than plain env — create the Secret out of band, then:
     # envFrom:
     #   - secretRef: api-common-secrets
