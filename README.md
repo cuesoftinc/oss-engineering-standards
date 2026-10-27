@@ -72,7 +72,7 @@ gh skill install cuesoftinc/oss-engineering-standards \
   --all \
   --agent codex \
   --scope project \
-  --pin v2.2.0
+  --pin v2.3.0
 ```
 
 Update tracked installations:

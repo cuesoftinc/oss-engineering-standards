@@ -117,8 +117,8 @@ ecosystem, and **must not** point at dead/deprecated directories. It has **no**
 `github-actions` entry — CI workflow conventions and shared jobs are org canon
 kept byte-identical across repos and updated deliberately in canon passes,
 never by a per-repo bot. Product files may add only explicitly ratified
-surface jobs/workflows (for example the mobile workflows); the tag-gated
-`release.yml` remains a shared fleet file when it lands.
+surface jobs/workflows (for example the mobile workflows); the
+merge-to-`main` `release.yml` remains a shared fleet file when it lands.
 
 ## Service structure (production)
 When bootstrapping or standardizing a service, **migrate existing code into
@@ -215,7 +215,7 @@ Helm, or Terraform. The structural rules:
 ## Cleanup rules (when standardizing)
 Remove (safe — not application code):
 - **Non-canonical GitHub Actions workflow files**: preserve the ratified
-  `.github/workflows/build-and-test.yml`, the deferred tag-gated `release.yml`
+  `.github/workflows/build-and-test.yml`, the deferred merge-to-`main` `release.yml`
   when present, and ratified surface workflows such as the mobile
   `mobile-goldens.yml` and `mobile-e2e.yml`; remove obsolete, duplicate,
   misplaced, or unratified workflow files.
