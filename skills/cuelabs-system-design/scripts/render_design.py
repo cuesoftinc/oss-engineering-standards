@@ -44,7 +44,7 @@ NODE_KINDS = {
     "person": ("person", "people"),
     "chip": ("chip", None),
     "chipbad": ("chipbad", None),
-    "group": ("group", "one service, several worker pools"),
+    "group": ("group", "one service, several deployments"),
     "labelbg": ("lblbg", None),
 }
 EDGE_KINDS = {

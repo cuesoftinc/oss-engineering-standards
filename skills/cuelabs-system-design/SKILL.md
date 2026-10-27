@@ -68,8 +68,8 @@ urgent). Otherwise proceed and record assumptions as open questions.
    write them as sequences, including authorization, polling, failures and
    deletion.
 7. **Remaining sections.** API surface and contract changes, security,
-   reliability (SLOs, failure modes, who watches it), deployment (worker
-   pools for consumers), repository layout, doc map, decisions to ratify
+   reliability (SLOs, failure modes, who watches it), deployment (min-zero
+   services, consumers woken on demand), repository layout, doc map, decisions to ratify
    (`S-1…`), migration phases, open questions.
 8. **Write the document** to `docs/system-design.md` (or the path the user
    names) following `document-template.md`. Do not commit unless asked.
@@ -106,7 +106,7 @@ urgent). Otherwise proceed and record assumptions as open questions.
   list the request as an open question for sign-off.
 - Never let bytes reach storage before the owner has authorized the upload.
 - Never leave a box unconnected on a diagram, or draw one service with
-  several worker pools as two services.
+  several deployments as two services.
 - Never draw an inbound provider call as skipping the load balancer, or an
   outbound call as passing through it.
 - Never invent a product value the inputs do not support; list it as an

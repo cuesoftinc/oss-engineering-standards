@@ -76,7 +76,7 @@ balancer), `service` (Go or Node), `python`, `function`, `stock`, `store`,
 `bus` (queue; its title sits inside, left-aligned), `person`, `chip` and
 `chipbad` (small tags inside a larger node; use `"align": "top"` on the
 parent so its title sits at the top), `group` (dashed outline around the
-worker pools of one service; its `title` is drawn at `label_pos`, default
+deployments of one service; its `title` is drawn at `label_pos`, default
 `bottom-right`), `labelbg` (a surface-coloured patch behind a label).
 `font_size` shrinks a long title.
 

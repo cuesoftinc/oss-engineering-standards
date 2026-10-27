@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 
 - Canonical environment variable names and naming rules for every backend.
+- Kafka client-certificate names and auth-mode order in the env table.
+- Browser Paystack key uses the `NEXT_PUBLIC_` or `VITE_` prefix.
+- System design deployment step drops worker pools.
 
 ## [2.3.0] - 2026-10-27
 
