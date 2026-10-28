@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://cuelabs.cuesoft.io/schemas/project.schema.json",
+  "$id": "https://raw.githubusercontent.com/cuesoftinc/oss-engineering-standards/main/skills/cuelabs-engineering-standards/assets/schema/project.schema.json",
   "$comment": "The schema validates parsed data. Serialization uses the bounded YAML subset documented in references/project-manifest.md.",
   "title": "CueLABS project manifest",
   "type": "object",
