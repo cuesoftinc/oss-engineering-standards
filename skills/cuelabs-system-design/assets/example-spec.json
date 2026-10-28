@@ -23,7 +23,7 @@
           {"id": "common", "kind": "service", "x": 240, "y": 250, "w": 260, "h": 74, "title": "api/common · Go", "lines": ["CRUD · auth · outbox", "issues upload tickets"]},
           {"id": "intake", "kind": "service", "x": 560, "y": 250, "w": 240, "h": 74, "title": "api/intake · Node", "lines": ["thin gateway · stateless", "verifies ticket · file checks"]},
           {"id": "gcs", "kind": "store", "x": 1000, "y": 250, "w": 180, "h": 250, "title": "Cloud Storage", "lines": ["tmp/ · deleted after parse", "exports"]},
-          {"id": "kafka", "kind": "bus", "x": 240, "y": 390, "w": 720, "h": 46, "title": "Managed Kafka: every service handoff"},
+          {"id": "kafka", "kind": "bus", "x": 240, "y": 390, "w": 720, "h": 46, "title": "Managed Kafka — every service handoff"},
           {"id": "redis", "kind": "store", "x": 20, "y": 480, "w": 150, "h": 74, "title": "Redis", "lines": ["rate limits · quotas"]},
           {"id": "process", "kind": "python", "x": 240, "y": 480, "w": 260, "h": 74, "title": "api/process · Python", "lines": ["parse · categorize", "duplicates · anomalies"]},
           {"id": "otel", "kind": "client", "x": 560, "y": 480, "w": 260, "h": 74, "title": "Observability gateway", "lines": ["OTLP + product events"]}

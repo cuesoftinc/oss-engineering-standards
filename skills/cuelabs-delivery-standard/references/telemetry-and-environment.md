@@ -15,12 +15,12 @@ Export = **direct OTLP from the SDK** (BatchSpan/LogRecord processors);
 collector sidecar = later upgrade path, never a v1 requirement. **Receiver =
 the ecosystem observability gateway** (4317 gRPC / 4318 HTTP, ingest-key
 header; exporters default to OTLP/HTTP). Exactly one product hosts that
-receiver for the whole ecosystem, see "Shared ecosystem services" in the
+receiver for the whole ecosystem — see "Shared ecosystem services" in the
 engineering skill's `organization-policy.md`; every other product exports to
 it through configuration only and never runs its own receiver. Export is
 env-gated: no `OTEL_EXPORTER_OTLP_ENDPOINT` → SDK no-ops. JSON stdout logging
 remains alongside (Cloud Run native). Operational telemetry ≠ product
-analytics events (the shared `/v1/events` API), separate pipelines, never
+analytics events (the shared `/v1/events` API) — separate pipelines, never
 mixed. Env: `OTEL_SERVICE_NAME`, `OTEL_EXPORTER_OTLP_ENDPOINT`,
 `OTEL_EXPORTER_OTLP_HEADERS`, `OTEL_RESOURCE_ATTRIBUTES`.
 

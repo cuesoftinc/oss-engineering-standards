@@ -30,7 +30,7 @@ Design every product to these, not to a larger cluster:
 | `cuelabs.uploads` | a product's upload gateway → its control plane (`api/common`) | "a file is in `tmp/`" pointers |
 | `cuelabs.requests` | a control plane → its processing services | work to do: extract, compute, segment, settle, alert… |
 | `cuelabs.results` | processing services → their control plane | decisions and figures to store |
-| *(reserved)* | n/a | two topics are held back; using one needs a decision in this file |
+| *(reserved)* | —   | two topics are held back; using one needs a decision in this file |
 
 Create each with 2 partitions and the service's default retention. The
 names never change per product: the **event type** says whose message it is.

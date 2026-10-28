@@ -6,13 +6,13 @@ only when it genuinely does not apply, and say so in one line.
 
 ## Header
 
-A blockquote stating: status (`[Proposed] v1, draft for ratification`),
+A blockquote stating: status (`[Proposed] v1 — draft for ratification`),
 which existing docs and sections it replaces once ratified, that it keeps
 every product decision and behavioural contract (name the exceptions), and
 where the new decisions are listed (`§13 as S-1…S-n`). Then the language rule
 in four bullets (see `method.md`) and one line on naming and transport.
 
-## 1. Why redesign, audit of the current design
+## 1. Why redesign — audit of the current design
 
 State what was audited (documents, a repository, or a description). Then a
 findings table:
@@ -88,7 +88,7 @@ environment variable names (new and retired).
 
 A tree of the target layout.
 
-## 12. Doc map, keep, change, retire
+## 12. Doc map — keep, change, retire
 
 Doc · Fate, for every existing document the design touches.
 

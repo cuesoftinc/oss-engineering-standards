@@ -7,7 +7,7 @@ up front and an audit can check they are recorded.
 ## Where values live
 
 - **Readiness state** (surfaces, capabilities, deployment targets,
-  deviations) lives in `.cuelabs/project.yaml`, see
+  deviations) lives in `.cuelabs/project.yaml` — see
   [project-manifest.md](project-manifest.md).
 - **Everything below** lives in the product's `docs/decisions.md`, under a
   `## Standard parameters` section, one row per parameter. `decisions.md` is

@@ -17,11 +17,11 @@ remain owned by the product repository.
 
 ## Decision levels
 
-1. **Base profile**, portable open-source safety and repository hygiene.
-2. **CueLABS profile**, organization-wide technology and delivery policy.
-3. **Product manifest**, current capabilities, surface readiness, deployment,
+1. **Base profile** — portable open-source safety and repository hygiene.
+2. **CueLABS profile** — organization-wide technology and delivery policy.
+3. **Product manifest** — current capabilities, surface readiness, deployment,
    and documented deviations.
-4. **Product documentation**, detailed behavior and implementation contracts.
+4. **Product documentation** — detailed behavior and implementation contracts.
 
 A higher level must not absorb state that belongs to a lower level.
 

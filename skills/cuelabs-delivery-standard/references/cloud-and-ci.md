@@ -10,10 +10,10 @@
 ## Canon
 
 - Backends deploy to GCP Cloud Run (provisioned via the
-  infrastructure-as-code (IaC) stack, never ad-hoc); frontends deploy to Firebase App Hosting; the
+  infrastructure-as-code (IaC) stack — never ad-hoc); frontends deploy to Firebase App Hosting; the
   Helm chart remains the self-host path.
 - **Serverless functions are reserved for probe/health-check style endpoints
-  only**, real request handling and business logic always live in a
+  only** — real request handling and business logic always live in a
   containerized `api/<service>`, never split out into an ad-hoc Cloud
   Function.
 - AI features use **Vertex AI** (Gemini via `aiplatform.googleapis.com`, ADC,
@@ -43,9 +43,9 @@
   product's runtime account, and is created paused in the IaC stack until
   its handler has shipped.
 - **GitHub Actions standard (uniform across repos)**:
-  standardized workflow families with identical shared jobs and conventions -
+  standardized workflow families with identical shared jobs and conventions —
   `.github/workflows/build-and-test.yml` (workflow name `build-and-test`;
-  triggers `push: branches [main]` + `pull_request`, no path filters -
+  triggers `push: branches [main]` + `pull_request`, no path filters —
   build-ready surfaces join as jobs; `permissions: contents: read`; `concurrency:
   build-and-test-${{ github.ref }}` with cancel-in-progress; one job per
   surface: `web` = "web · lint + typecheck + unit + build" on Node 24
@@ -55,7 +55,7 @@
   phase; mobile jobs land when mobile implementation begins. Once present,
   stack-equivalent API/mobile jobs follow the same fleet naming, setup, cache,
   and command shape; action steps
-  pin the LATEST major tag of official actions, never a commit sha, currently
+  pin the LATEST major tag of official actions, never a commit sha — currently
   `actions/checkout@v7`, `actions/setup-node@v7`,
   `actions/upload-artifact@v7` (verify via
   `gh api repos/actions/<name>/releases/latest` when touching workflows,
@@ -74,7 +74,7 @@
   explicitly ratified surface workflows are a standards deviation and need
   ratification. CodeQL runs via GitHub DEFAULT SETUP
   (a repo setting, `gh api repos/<org>/<repo>/code-scanning/default-setup`),
-  not a workflow file, parity audits check the API, not `.github/`.
+  not a workflow file — parity audits check the API, not `.github/`.
 - **Test layout standard (uniform across repos)**: unit/
   integration tests co-locate with their source as `<name>.test.ts(x)`
   (component `Button.test.tsx` beside `Button.tsx`; kebab for module tests);
@@ -108,14 +108,14 @@
     `@emotion/*`, `dayjs`, `moment` (plus the legacy-path ban) in every
     web app; `eslint-plugin-testing-library` is WIRED (flat/react preset
     scoped to `src/**/*.test.{ts,tsx}`) with `no-container` and
-    `no-node-access` disabled via a documenting comment, bespoke
+    `no-node-access` disabled via a documenting comment — bespoke
     token-layer components assert non-semantic structure by design.
   - **README fleet template**: badge row (License MIT + build-and-test
     status) after the intro paragraph; prose overview; plain-indent repo
     tree; `cp .env.example .env` + make-target quickstart; Node/Go
     versions per the single-truths above. Root `.env.example` uses
     `── section ──` comment headers; `web/.env.example` stays headerless.
-  - **next.config**: `devIndicators: { position: "bottom-right" }`, keep
+  - **next.config**: `devIndicators: { position: "bottom-right" }` — keep
     the dev indicator, keep it out of content corners.
 - Transactional email: **Brevo REST API** only (`BREVO_API_KEY`,
   `BREVO_FROM_EMAIL` and `BREVO_FROM_NAME` via your secrets manager), **no SMTP** in any CueLABS™ product.
@@ -149,7 +149,7 @@
   The deployed `stg` estate runs no Envoy.
 - **Pub/sub (managed Kafka) is a standardized option** for async multi-language
   processing pipelines where durability across a consumer restart matters
-  more than a live round-trip, e.g. a Node gateway handing a file to a
+  more than a live round-trip — e.g. a Node gateway handing a file to a
   Python processing service. Preferred over direct gRPC s2s for that shape
   because the queue, not caller-side retry logic, is the durability
   boundary: a message published while its consumer is restarting or

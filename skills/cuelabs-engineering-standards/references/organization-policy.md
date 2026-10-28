@@ -30,26 +30,26 @@ flowchart LR
   "Multi-service pipelines" in `repository-and-services.md` for how the
   CRUD, processing, and gateway responsibilities split, connected by pub/sub
   rather than a direct service-to-service call.
-- Auth: Firebase Authentication, **Google sign-in ONLY**, no username/password
+- Auth: Firebase Authentication, **Google sign-in ONLY** — no username/password
   signup or login in any CueLABS™ open-source product. Enforce at three layers:
   Email/Password provider disabled on the Firebase project; backends reject
   tokens with `sign_in_provider != google.com`; UI ships exactly one
   "Continue with Google" CTA. Every product uses the shared identity project
   listed under "Shared ecosystem services".
-- Identity, profile & KYC tiers: layered on the auth standard above -
+- Identity, profile & KYC tiers: layered on the auth standard above —
   Google sign-in stays the sole credential; tiers add profile data and
   verification, **never alternative logins**.
-  - **Tier 0, Google identity** (all products): `firebase_uid` +
+  - **Tier 0 — Google identity** (all products): `firebase_uid` +
     Google-verified email; grants all read/basic use.
-  - **Tier 1, self-attested profile & location**: only the fields the
+  - **Tier 1 — self-attested profile & location**: only the fields the
     product needs (for example a location for recommendations, a tax
     jurisdiction, or an organization timezone), captured in product
     profile/settings. Tier-1 data is sensitive PII and is never logged.
-  - **Tier 2, provider-verified financial identity**: only where money moves
+  - **Tier 2 — provider-verified financial identity**: only where money moves
     or government filings are generated. Store provider references and
     verification state, **never raw government IDs**. Verification is
     delegated to the payment or filing provider (for example bank resolution
-    through the payment provider), no in-house document review.
+    through the payment provider) — no in-house document review.
   - Rules: tiers gate capabilities, never sign-in. KYC state machines and
     their error codes (for example `kyc_incomplete`) live in the product's
     flow docs. Tier-2 fields are high-sensitivity in `data-model.md`'s
@@ -103,7 +103,7 @@ needs without it:
 Every product repo carries the same docs set (GitBook Git-synced via
 `.gitbook.yaml`, nav in `docs/SUMMARY.md`; doc H1s are
 `<Product>, <Title>` and the SUMMARY nav label is exactly the H1 minus
-the product prefix, e.g. `# <Product>, Web Implementation Standard` →
+the product prefix — e.g. `# <Product>, Web Implementation Standard` →
 the `Web Implementation Standard` label targeting `web-implementation.md`;
 labels must match across repos):
 `overview.md setup.md prd.md decisions.md roadmap.md design.md pages.md
@@ -112,7 +112,7 @@ flows/ (auth + core product flows) api/openapi.yaml` + product-specific
 contracts for the product's core domain (for example a pricing engine or a
 query grammar).
 Claims are marked **[Current] / [PRD] / [Directive] / [Proposed] / [Decided]**;
-`decisions.md` is the ratification register, other docs defer to it. It
+`decisions.md` is the ratification register — other docs defer to it. It
 also records the product's values for every parameter listed in
 [product-decisions.md](product-decisions.md).
 `features.md` is the granular build backlog (stable IDs, referenced in PRs as
@@ -123,7 +123,7 @@ deep-dive sections slot between the fixed ones):
 - `prd.md`: Product definition · Personas/JTBD · Functional requirements ·
   Non-goals · Brand & content · Compliance & safety · Success metrics · Open
   questions · Scope expansions (dated).
-- `architecture.md`: 1 Context-current · 2 Context-target · 3 Service
+- `architecture.md`: 1 Context—current · 2 Context—target · 3 Service
   breakdown · 4 Core sequences · (product deep-dives) · Deployment view ·
   Cross-repo dependencies · dated expansion sections.
 - `data-model.md`: Current entities · Target additions · Storage/identity
@@ -141,17 +141,17 @@ deep-dive sections slot between the fixed ones):
   register delta. `features.md`: Phase tables (ID/unit/delivers/refs/deps) +
   cross-phase units. `flows/*`: numbered contract sections ending in
   Instrumentation & Acceptance.
-- All mermaid diagrams must parse (validate with mermaid-cli before merge -
+- All mermaid diagrams must parse (validate with mermaid-cli before merge —
   invalid blocks render as plaintext on GitBook); no ASCII diagrams.
 - Landing dual-audience rule: the product landing page (`pages.md` Part A)
   must sell to **both** contributor-developers (stack, interesting problems,
   good-first-issues, community links) and self-hosting adopters
-  (data-ownership pitch, one-line install, what ships), with an FAQ.
+  (data-ownership pitch, one-line install, what ships) — with an FAQ.
 
 **Docs describe the current system**: docs are a snapshot of what is on
 `main` now, not a changelog. Decision markers (`[Decided …]` /
 `[Directive …]`) and as-built notes describing the current construction stay;
-archaeology does not, once a replacement lands, clauses like "replaces X",
+archaeology does not — once a replacement lands, clauses like "replaces X",
 "drops Y", "formerly Z", references to retired legacy trees, or pointers at
 Deprecated-page parking are removed in the same pass (git history and PRs are
 the changelog).
@@ -165,7 +165,7 @@ the changelog).
   review). Cross-tenant access returns `404`, never `403`.
 - Cursor pagination (`?cursor=&limit=`, default 50).
 - `Idempotency-Key` header on any client-retryable mutation (uploads,
-  payments, submissions), retries must never duplicate.
+  payments, submissions) — retries must never duplicate.
 - Rate limits per engineering.md; `429` + `Retry-After`.
 - Auth: Firebase ID-token bearer (Google-only); machine identities
   (service tokens, property keys) never grant user-API access.
@@ -174,7 +174,7 @@ the changelog).
 
 The product analytics service's `docs/api.md` consumer registry (see "Shared
 ecosystem services") is the **master event registry** for the ecosystem.
-Events are counters + registered coarse dims only, never measurement values,
+Events are counters + registered coarse dims only — never measurement values,
 amounts, descriptions, or PII. Adding an event = update the registry first,
 then instrument.
 

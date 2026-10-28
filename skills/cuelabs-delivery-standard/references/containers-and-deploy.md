@@ -18,15 +18,15 @@ shipping.
 
 Chart gotchas that cost real time:
 - Pods run `runAsNonRoot` with a **numeric** `runAsUser` (default 10001;
-  web images run as `node` = 1000, Envoy as 101), kubelet cannot verify
+  web images run as `node` = 1000, Envoy as 101) — kubelet cannot verify
   named users and rejects the pod otherwise.
-- **Bump `Chart.yaml` version on every chart change**, the terraform helm
+- **Bump `Chart.yaml` version on every chart change** — the terraform helm
   provider does not upgrade local charts whose version is unchanged.
 - Images live under the product's container registry organization: `<org>/<repo>-<service>`.
 
 `deploy/terraform` (see core `assets/templates/terraform/`) is **cluster-agnostic**: the
 helm provider authenticates via kubeconfig (`kubeconfig_path`/`kube_context`
-variables) and installs the repo chart, no cloud-specific providers.
+variables) and installs the repo chart — no cloud-specific providers.
 
 ## Local development (Docker)
 Each repo has a root `docker-compose.yml` and a compose-driven `Makefile`
@@ -34,30 +34,30 @@ Each repo has a root `docker-compose.yml` and a compose-driven `Makefile`
 `.env` first. Service packaging (see core `assets/templates/Dockerfile.go`,
 `assets/templates/Dockerfile.web`, `assets/templates/docker-compose.example.yml`):
 
-- **Go services**, multi-stage, static binary (`CGO_ENABLED=0`), non-root user,
+- **Go services** — multi-stage, static binary (`CGO_ENABLED=0`), non-root user,
   honors `$PORT` (default 8080), `/health` HEALTHCHECK.
-- **Next.js web**, `output: "standalone"` + multi-stage build that runs
+- **Next.js web** — `output: "standalone"` + multi-stage build that runs
   `node server.js` as the non-root `node` user (never `npm run dev` in an image).
-- **Python services**, core `assets/templates/Dockerfile.python`: `python:3.12-slim`,
+- **Python services** — core `assets/templates/Dockerfile.python`: `python:3.12-slim`,
   non-root uid 10001, PORT-aware 127.0.0.1 `/health` healthcheck with a long
   start period (model loads), `uvicorn app.main:app`.
-- **Node API services (NestJS)**, core `assets/templates/Dockerfile.node`:
+- **Node API services (NestJS)** — core `assets/templates/Dockerfile.node`:
   `node:24-slim` (glibc, same fleet Node single-truth as `web`), multi-stage
   (`npm ci` → `npm run build` → `npm ci --omit=dev` for the runtime layer),
   non-root `node` user, PORT-aware `/health` HEALTHCHECK, `node dist/main.js`.
   Distinct from `Dockerfile.web` (that one serves the Next.js frontend).
-- **gRPC-Web repos**, run Envoy in compose (image pinned, config mounted from
+- **gRPC-Web repos** — run Envoy in compose (image pinned, config mounted from
   `deploy/helm/envoy/envoy.yaml`, backend network-aliased to the cluster
   target); Envoy takes the next free port slot after the APIs and the web image
   gets `NEXT_PUBLIC_ENVOY_URL` as a build arg.
-- **Kafka repos**, compose runs one local `apache/kafka` broker (KRaft,
+- **Kafka repos** — compose runs one local `apache/kafka` broker (KRaft,
   plain text, 2 partitions per topic) and the services point `KAFKA_BROKERS`
   at it with `KAFKA_USERNAME` unset; the Helm chart takes the operator's
   broker through the same `KAFKA_*` values. Neither ever uses the shared
   bus (`shared-messaging.md`, "Environments").
 
 **Port convention (parity across repos):** so muscle memory carries between
-services, every repo publishes the same host ports, `api/common` → **8080**,
+services, every repo publishes the same host ports — `api/common` → **8080**,
 `web` → **3000**, and each additional API increments from there in the order
 it was added (**8081**, 8082, …; a two-service pipeline takes 8081 for the
 gateway and 8082 for the processor). The product records its assignments in
@@ -66,13 +66,13 @@ to the same value, and the web's runtime `API_URL` targets `api/common` on
 8080.
 
 Gotchas that cost real time:
-- Build the web image on **`node:*-slim` (glibc), not Alpine**, Next 16's
+- Build the web image on **`node:*-slim` (glibc), not Alpine** — Next 16's
   Turbopack build workers are unreliable on musl.
 - Keep **TypeScript on 5.x**; Next's build-time TS check crashes on the
   TypeScript 7 native compiler. Dependabot npm-group PRs can silently bump
-  `typescript`/`eslint`/`@types/node` to breaking majors, pin them.
+  `typescript`/`eslint`/`@types/node` to breaking majors — pin them.
 - `NEXT_PUBLIC_*` are inlined at build time → pass them as Docker build args.
-- **SSR safety**: never touch `localStorage`/`window` during render, only in
+- **SSR safety**: never touch `localStorage`/`window` during render — only in
   `useEffect`/handlers (or behind `typeof window !== "undefined"`); prerender
   crashes otherwise. Session state that both client and shell components need
   belongs in cookies, written and read by the same names.
