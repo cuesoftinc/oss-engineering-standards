@@ -1,5 +1,5 @@
 # Example values for the standard-form chart (copy per repo as values.yaml).
-# Image org on Docker Hub is `cuesoft` — images are cuesoft/<repo>-<service>.
+# Images live under your container registry organization: <org>/<repo>-<service>.
 replicaCount: 1
 
 services:

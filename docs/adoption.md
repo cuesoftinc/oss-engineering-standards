@@ -20,7 +20,7 @@ set:
 
 ```bash
 gh skill install cuesoftinc/oss-engineering-standards \
-  --all --agent codex --scope project --pin v2.3.0
+  --all --agent codex --scope project --pin v2.5.0
 ```
 
 Review and commit the resulting `.agents/skills/` tree. Update it deliberately
@@ -41,7 +41,7 @@ gh skill install cuesoftinc/oss-engineering-standards \
 ## Add the project manifest
 
 The manifest belongs to adopter repositories. This catalog repository is the
-canon source, not an adopter — it carries no `.cuelabs/project.yaml`, and its
+canon source, not an adopter, it carries no `.cuelabs/project.yaml`, and its
 repository files (a documentation-repo `.gitignore`, catalog-specific
 contributing and PR-template content) are intentionally not template-identical.
 

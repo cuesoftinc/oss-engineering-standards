@@ -13,7 +13,7 @@
 
 ```
 api/
-  common/            Go backend — auth + core API. ALWAYS named "common".
+  common/            Go backend, auth + core API. ALWAYS named "common".
   <service-name>/    Additional services, named by FUNCTION not language:
                      e.g. measure (Python pose estimation), observability
                      (Python ingest), intake + process (Node upload gateway
@@ -22,8 +22,8 @@ api/
 web/                 Next.js marketing site + dashboard
 mobile/
   flutter/           Primary cross-platform app (Dart)
-  android/           Native Android (Kotlin) — placeholder until built
-  ios/               Native iOS (Swift) — placeholder until built
+  android/           Native Android (Kotlin), placeholder until built
+  ios/               Native iOS (Swift), placeholder until built
 deploy/
   docker/            Extra container assets (compose itself lives at the repo root)
   helm/              ONE standard-form chart that deploys ALL services (incl. Envoy) to k8s
@@ -38,14 +38,14 @@ Plus the root files listed under **Community health & config** below.
 `api/common` is the shared Go backend in every repo. Every **other** service is
 named by what it *does* (`measure`, `observability`, `intake`, `process`),
 **never** by its language (`go`/`python`/`nodejs`). Only create a service
-directory when a real service exists — do not add empty placeholder directories.
+directory when a real service exists, do not add empty placeholder directories.
 
 ### Multi-service pipelines (more than one non-common service)
 Most repos need only `api/common` + one other service. A repo needs **more**
-than that when a real multi-stage pipeline exists — e.g. a document flow
+than that when a real multi-stage pipeline exists, e.g. a document flow
 where a Node gateway receives the upload, a Python service does the actual
 extraction/decision work, and Go persists the result. In that shape:
-- **Go (`api/common`) is the CRUD/data owner ONLY** — it persists what other
+- **Go (`api/common`) is the CRUD/data owner ONLY**, it persists what other
   services decide, it never makes classification/detection decisions itself.
   Anything that's a lookup-then-write against data Go already owns (create
   the row, update the status) is CRUD; anything that decides a value (which
@@ -56,20 +56,20 @@ extraction/decision work, and Go persists the result. In that shape:
   data it needs (existing categories, fingerprints, historical aggregates)
   from Go, computes the result, and sends the full decision back for Go to
   write. It never opens its own connection to Go's datastore.
-- **The gateway service (e.g. `intake`) is thin** — request validation and
+- **The gateway service (e.g. `intake`) is thin**, request validation and
   handing off to the processing service. It owns no persisted state of its
   own; the CRUD service is still the one creating/tracking the job record.
-- Real, standing services for all three — never a Cloud Function standing in
+- Real, standing services for all three, never a Cloud Function standing in
   for one of them. Serverless functions are reserved for probe/health-check
   endpoints only (see `cloud-and-ci.md`).
 
 ## Community health & config (required root files)
 
-**These files must have parity across all CueLABS™ repos** — byte-identical,
+**These files must have parity across all CueLABS™ repos**, byte-identical,
 sourced from [`assets/templates/`](../assets/templates/). Only `README.md`, `CHANGELOG.md`,
 and `.github/dependabot.yml` are repo-specific (repo overview, its own history,
-and its own manifest scoping); everything else in the table below — including the
-compose-driven, mobile-ready `Makefile` — is identical across repos.
+and its own manifest scoping); everything else in the table below, including the
+compose-driven, mobile-ready `Makefile`, is identical across repos.
 
 | File | Purpose |
 |------|---------|
@@ -98,12 +98,12 @@ Docker templates (`Dockerfile.go`, `Dockerfile.web`, `Dockerfile.python`,
 the standard-form
 Helm chart skeleton (`helm/`), and cluster-agnostic terraform (`terraform/`). Dotfile templates are stored
 **without** a leading dot so they stay visible and are never applied to this repo
-by accident — when adopting them, copy `assets/templates/gitignore` → `.gitignore`,
+by accident, when adopting them, copy `assets/templates/gitignore` → `.gitignore`,
 `assets/templates/dockerignore.root` → `.dockerignore`, and `assets/templates/editorconfig` →
 `.editorconfig`; copy `assets/templates/prettierignore.web` →
 `web/.prettierignore`.
 
-**Changelog discipline**: `CHANGELOG.md` follows Keep a Changelog strictly —
+**Changelog discipline**: `CHANGELOG.md` follows Keep a Changelog strictly -
 ONE `### <Bucket>` heading per bucket per section, in canonical order (Added,
 Changed, Deprecated, Removed, Fixed, Security). New entries merge into the
 existing bucket heading under `[Unreleased]`; grep for it before writing a new
@@ -114,7 +114,7 @@ entry with the real number.
 lists one `updates` entry per real manifest directory (`gomod /api/common`,
 `pip /api/<python-service>`, `npm /web`, `pub /mobile/flutter`), grouped per
 ecosystem, and **must not** point at dead/deprecated directories. It has **no**
-`github-actions` entry — CI workflow conventions and shared jobs are org canon
+`github-actions` entry, CI workflow conventions and shared jobs are org canon
 kept byte-identical across repos and updated deliberately in canon passes,
 never by a per-repo bot. Product files may add only explicitly ratified
 surface jobs/workflows (for example the mobile workflows); the
@@ -122,7 +122,7 @@ merge-to-`main` `release.yml` remains a shared fleet file when it lands.
 
 ## Service structure (production)
 When bootstrapping or standardizing a service, **migrate existing code into
-these layouts** — don't scaffold empty projects.
+these layouts**, don't scaffold empty projects.
 
 **Every service directory** (each `api/*`, `web`) carries its own internals,
 consistent across repos: `README.md` (layout/run/config/test), `.gitignore`,
@@ -160,23 +160,23 @@ src/<feature>/                 one module per real feature, added when it exists
 ```
 `$PORT` (per the port convention), `/health` + `/ready`, non-root `node`
 user in the image. This is an **API service** (upload gateway, webhook
-receiver, etc.) — distinct from `web` (the Next.js frontend), which keeps
+receiver, etc.), distinct from `web` (the Next.js frontend), which keeps
 its own layout below. Never call this service's directory `node` or
 `nodejs`; name it by function per the naming rule above.
 
 **Next.js (`web`):**
 ```
-src/app/                      routes — home at `/`, product dashboard at `/dashboard`
+src/app/                      routes, home at `/`, product dashboard at `/dashboard`
 src/{auth,components,config,controllers,design,generated,lib,mocks,models}
 src/proto/                    generated protocol clients, only when needed
 ```
-Minimal root `layout.tsx` (html/body — plus a CSS-in-JS registry only where the
+Minimal root `layout.tsx` (html/body, plus a CSS-in-JS registry only where the
 repo uses one); the home page
 renders its own shell; `/dashboard` gets a nested `layout.tsx`. `@/*` → `./src/*`,
 `output: "standalone"`.
 
 **Flutter (`mobile/flutter`):** feature-first per the mobile standard
-(see the Mobile section below — the single source for the tree):
+(see the Mobile section below, the single source for the tree):
 ```
 lib/main.dart + lib/main_dev.dart          (per-flavor entrypoints)
 lib/src/features/<feature>/{presentation,domain,data}
@@ -195,7 +195,7 @@ Same language ⇒ same conventions; each project keeps its own *features*.
 | Next / TS (`web`) | **kebab-case** (`shared-layouts/`, `change-password/`) | **Components PascalCase** (`NavBar.tsx`); modules/hooks/styles/types **kebab-case** (`use-auth.ts`, `home-context.ts`, `nav-bar.styles.ts`); Next reserved lowercase (`page.tsx`, `layout.tsx`, `route.ts`) |
 | Dart | `snake_case` | `snake_case.dart` |
 
-Generated code (`proto/`, `*_pb.*`, grpc-web clients) keeps its generated names — never rename it.
+Generated code (`proto/`, `*_pb.*`, grpc-web clients) keeps its generated names, never rename it.
 
 ## Deployment and local containers (summary)
 
@@ -213,7 +213,7 @@ Helm, or Terraform. The structural rules:
 - Templates for every service type live in `assets/templates/`.
 
 ## Cleanup rules (when standardizing)
-Remove (safe — not application code):
+Remove (safe, not application code):
 - **Non-canonical GitHub Actions workflow files**: preserve the ratified
   `.github/workflows/build-and-test.yml`, the deferred merge-to-`main` `release.yml`
   when present, and ratified surface workflows such as the mobile
@@ -230,10 +230,10 @@ Never remove:
 - Placeholder `.gitkeep`s in genuinely-empty standard dirs (`deploy/*`,
   `mobile/android`, `mobile/ios`, `scripts`).
 
-## Procedure A — standardize an existing repo
+## Procedure A, standardize an existing repo
 1. Branch `chore/standardize-structure`.
 2. Move services into place with `git mv` (preserves history). `api/common`
-   (Go) stays put — its module path is unaffected. Rename functional services
+   (Go) stays put, its module path is unaffected. Rename functional services
    (e.g. `reliability-service` → `observability`).
 3. `git grep -n <old-path>` and update every reference (Dockerfiles, compose,
    Makefile, docs, CI). Go modules with logical/bare module names are unaffected
@@ -247,7 +247,7 @@ Never remove:
 7. Verify: build/imports intact, `git status` clean, no app code deleted.
    Open a PR (do not self-merge without review).
 
-## Procedure B — bootstrap a new repo
+## Procedure B, bootstrap a new repo
 Start from an empty repository and add surfaces only as they become real.
 `<cli>` is `python3 <skill-dir>/scripts/cuelabs_standard.py`.
 
@@ -268,15 +268,15 @@ Start from an empty repository and add surfaces only as they become real.
    overwrites either file.
 4. **Decide the parameters with the user**: for each `P-nn` row that a
    surface about to be built needs (see the "Used by" column in
-   `product-decisions.md`), propose a value with a one-line reason — e.g.
-   "P-04 default theme: dark, because the product is a developer tool" —
+   `product-decisions.md`), propose a value with a one-line reason, e.g.
+   "P-04 default theme: dark, because the product is a developer tool" -
    and record it only after the user confirms. Batch the proposals into one
    question rather than asking row by row. Rows for `planned`/`absent`
-   surfaces read `n/a`; rows the user defers stay `—` and are reported as
+   surfaces read `n/a`; rows the user defers keep the template's placeholder and are reported as
    open decisions.
 5. **Copy the shared files**: `<cli> apply --repo .` copies every missing
    profile-managed file (community health, `.gitignore`, `.editorconfig`,
-   and — once a surface is `active` — the `Makefile`, `.dockerignore`, and
+   and, once a surface is `active`, the `Makefile`, `.dockerignore`, and
    `.env.example`).
 6. **Build a surface** when it moves to `active` (update the manifest in
    the same change):

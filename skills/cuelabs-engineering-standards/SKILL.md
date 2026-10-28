@@ -122,7 +122,7 @@ unless the task actually touches that surface.
 - Never present product-specific policy as a portable OSS requirement.
 - Never silently resolve an explicit documented deviation.
 - Never record a product decision (`P-nn` value) or manifest identity the user
-  has not confirmed; leave it `—` and list it as an open decision.
+  has not confirmed; leave it as the template's placeholder and list it as an open decision.
 - Keep shared files byte-identical only when the standard marks them shared;
   keep product variation in manifests, scripts, or documented extension points.
 

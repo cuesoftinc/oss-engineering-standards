@@ -1,7 +1,7 @@
 # CueLABS Shared Message Bus
 
-Every CueLABS™ product that uses a queue shares **one Aiven Kafka service**,
-the same way products share one Aiven Redis with `REDIS_DB` tenancy. This
+Every CueLABS™ product that uses a queue shares **one managed Kafka service**,
+the same way products share one managed Redis with `REDIS_DB` tenancy. This
 page is the contract between those products. A product's
 `docs/system-design.md` lists only its own events and points here for
 topics, envelope, limits and operations.
@@ -30,7 +30,7 @@ Design every product to these, not to a larger cluster:
 | `cuelabs.uploads` | a product's upload gateway → its control plane (`api/common`) | "a file is in `tmp/`" pointers |
 | `cuelabs.requests` | a control plane → its processing services | work to do: extract, compute, segment, settle, alert… |
 | `cuelabs.results` | processing services → their control plane | decisions and figures to store |
-| *(reserved)* | — | two topics are held back; using one needs a decision in this file |
+| *(reserved)* | n/a | two topics are held back; using one needs a decision in this file |
 
 Create each with 2 partitions and the service's default retention. The
 names never change per product: the **event type** says whose message it is.
@@ -103,7 +103,7 @@ throughput.
 
 ## Environments
 
-Only the deployed services (Doppler `stg`) connect to the shared service.
+Only the deployed services (the `stg` config in your secrets manager) connect to the shared service.
 Local compose stacks and self-host installs run their own single broker
 with the same three lane names, so code and configuration are identical
 everywhere; `dev` configs never hold the shared service's credentials. A
@@ -133,7 +133,7 @@ consumer lag.
 
 - **Exactly one keep-alive owner.** One product's control-plane sweep
   sends a `<product>.system.heartbeat` on `cuelabs.requests` every 6 hours
-  and, every few minutes, reads the service state from the Aiven API and
+  and, every few minutes, reads the service state from the managed-service API and
   powers it on when it is off (`AIVEN_API_TOKEN`, `AIVEN_PROJECT`,
   `AIVEN_KAFKA_SERVICE`, set only on that sweep). Every product's
   `docs/decisions.md` names the owner; no other product runs a heartbeat or
@@ -151,7 +151,7 @@ consumer lag.
   deleted after a day (a sweep plus a bucket lifecycle rule).
 - Connection settings are the fleet names: `KAFKA_BROKERS`,
   `KAFKA_USERNAME`, `KAFKA_PASSWORD`, `KAFKA_SSL_CA`, with SASL/SCRAM-SHA-256
-  over TLS, using the product's own Kafka user. If the Aiven plan refuses
-  SASL, client certificates and keys from Doppler take its place. With
+  over TLS, using the product's own Kafka user. If the service plan refuses
+  SASL, client certificates and keys from your secrets manager take its place. With
   `KAFKA_USERNAME` unset (a local or self-host broker) clients connect in
   plain text.
