@@ -72,19 +72,19 @@ of it.
   failNext seam with one failure-path test per mutating surface.
   (5) DANGER LADDER — irreversible transitions are callable only from
   confirm sheets born DISARMED (reason=null, CTA disabled); arming tests,
-  never defect-encoding tests. (6) MI PRIMITIVES — every design-system
+  never defect-encoding tests. (6) MI PRIMITIVES, every design-system
   microinteraction exists ONCE as a named core/ui primitive; an MI-registry
   conformance test maps screen→active-MIs from the contract and asserts the
-  primitive is instantiated — a screen cannot ship with an MI
+  primitive is instantiated, a screen cannot ship with an MI
   active-but-absent. (7) DESTINATIONS — exhaustive kind→route mapping tests
   (no silent enum fallthroughs); interstitial exits go(), never push().
   (8) FORMS — one shared parser/validator per input class; in-flight guards
   supersede, never wedge; Completer-driven state-machine tests cover
   input-during-flight.
-- **Cross-platform parity canons**: (1) CHROME ALIGNMENT — header-bar titles
+- **Cross-platform parity canons**: (1) CHROME ALIGNMENT, header-bar titles
   are true bar-width centered (on the bar, never the between-actions flex
   remainder) on EVERY platform rendering the AppBar master, web included;
-  desktop-dashboard in-content page titles stay left-aligned — centering
+  desktop-dashboard in-content page titles stay left-aligned, centering
   rules are chrome-scoped, never page-scoped. A mobile chrome ruling extends
   to web exactly where web renders the same chrome component and stops at
   platform-idiom boundaries. (2) CANON-FACT SWEEPS — when a product-fact
@@ -155,25 +155,25 @@ of it.
   dev-flavor build on every PR; an apk/ipa release matrix lands with the
   deploy phase.
 - **Hygiene**: flavors mirror the ORG ENVIRONMENT MODEL, not the
-  generic trio — CueLABS has one real environment (the sandbox account
+  generic trio, CueLABS has one real environment (the sandbox account
   IS production), so mobile ships exactly `dev` (fakes, ".dev" suffix) +
-  `prod` (bare id, sandbox Firebase, Doppler stg config); add flavors only
+  `prod` (bare id, sandbox Firebase, the `stg` secrets config); add flavors only
   when a ratified environment exists (applicationIdSuffix + iOS schemes,
   `appFlavor` constant, flavor-scoped assets); secrets via
-  `--dart-define-from-file=env/<flavor>.json` generated from Doppler,
-  gitignored — never envied/obfuscation as security; gen-l10n outputs
-  into `lib/` (the `synthetic-package` key is removed upstream — do not
+  `--dart-define-from-file=env/<flavor>.json` generated from your secrets manager,
+  gitignored, never envied/obfuscation as security; gen-l10n outputs
+  into `lib/` (the `synthetic-package` key is removed upstream, do not
   write it into l10n.yaml);
   native projects live INSIDE the flutter root; icons/splash via
   flutter_launcher_icons + flutter_native_splash per flavor;
-  `version: x.y.z+build` — humans own x.y.z, CI stamps build number.
+  `version: x.y.z+build`, humans own x.y.z, CI stamps build number.
 - **Platform floors & flavor plumbing**: iOS floor is 15 (Firebase iOS SDK
   12 requires it — the Flutter floor of 13 does NOT build once firebase
   packages join). The pbxproj `IPHONEOS_DEPLOYMENT_TARGET` is the single
   source: flutter_tools rewrites the generated SwiftPM package's platform
-  from it on every build — raw `xcodebuild` BYPASSES that rewrite (and all
+  from it on every build, raw `xcodebuild` BYPASSES that rewrite (and all
   flavor/asset plumbing); always build through the flutter tool. iOS
-  flavors: the scheme/config NAMING is load-bearing — the tool derives the
+  flavors: the scheme/config NAMING is load-bearing, the tool derives the
   flavor from the build configuration name (`Debug-dev` → flavor `dev`),
   and flavor-scoped assets bundle ONLY when a flavor is carried, so a
   schemeless build ships fakes with EMPTY seed stores. CI carries an
@@ -202,8 +202,7 @@ of it.
   reactivecircus/android-emulator-runner (default target — no Play services
   with fakes). New dispatch-only workflows are PROVEN pre-merge via a TEMP
   branch-push trigger commit, reverted once green — never merged unproven.
-  GOTCHA: never use enterText/IME injection in ON-DEVICE integration tests
-  — the live binding never registers TestTextInput, so injected text rides
+  GOTCHA: never use enterText/IME injection in ON-DEVICE integration tests, the live binding never registers TestTextInput, so injected text rides
   a debug path that silently fails to commit against the real IME; drive
   pointer gestures instead (typed-entry coverage stays in widget tests).
 - **Legacy quarantine (carried from web)**: superseded mobile code is NEVER

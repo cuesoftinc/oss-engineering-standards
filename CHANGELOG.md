@@ -38,8 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- Cloud Run services declared in `cuesoft-iac` with placeholder images first (#146).
-- Docker Hub credentials come from Doppler `admin/ci` references (#146).
+- Cloud Run services declared in the infrastructure repository with placeholder images first (#146).
+- Docker Hub credentials come from the CI secrets config (#146).
 - Shared `cuesoft` Postgres user with a one-time ownership handover (#146).
 - Sweeps run as paused Cloud Scheduler jobs on `/internal/jobs/<name>` (#146).
 - Media reads and writes use signed URLs only (#146).
@@ -60,7 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Kafka consumers default to scale-to-zero with wake-ups (#145).
 - System-design method drops compacted topics; re-sends use new ids (#145).
 - System-design example uses the shared lanes and wake-ups (#145).
-- Doppler configs listed as `dev`, `stg`, `prd` and `ci` (#145).
+- Secrets configs listed as `dev`, `stg`, `prd` and `ci` (#145).
 - Install examples pin v2.2.0 (#145).
 
 ### Fixed
@@ -239,25 +239,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   typed go_router, mock-first fake repositories with seeded assets (TEST_MODE
   parity), Figma-variable-generated ThemeExtensions, one module per Figma
   component set, very_good_analysis + alchemist/patrol testing, dev/stg/prd
-  flavors with Doppler-fed dart-defines, and the Google-only Firebase auth
+  flavors with secrets-fed dart-defines, and the Google-only Firebase auth
   flow (#120).
 
 - `SKILL.md` web-canon sections from the 2026-07-20/21 program waves: tri-state
   theme contract (#94), double-writer coordination-ledger protocol (#95),
-  unset-theme-is-design-default ruling (#96), audit-convergence sync — danger
+  unset-theme-is-design-default ruling (#96), audit-convergence sync, danger
   ladder, chart construction, micro-labels, star-badge construction (#97),
   fleet chrome naming + date idioms (#98), settings IA shapes (#99),
-  review-round canons — floating-layer Y-flip, anatomy fidelity, findings-are-
+  review-round canons, floating-layer Y-flip, anatomy fidelity, findings-are-
   classes (#100), chart dash-normalization gotcha (#101), landing type-fidelity
   canon (#102), quiet-danger reference implementation (#104), worktree removal
   at the merge gate + the 2-build-worktree cap (#105), the FAH
   `images.unoptimized` gotcha + WebP loader canon (#106), overlay focus
   contract + named-control API (#107), SEO plumbing canon (#108),
-  contrast-token canon — `-text` variants, `on-crit`, fixed-light locales
-  (#109, #110), the canonical `web/src/` tree — shape is a parity item (#111),
+  contrast-token canon, `-text` variants, `on-crit`, fixed-light locales
+  (#109, #110), the canonical `web/src/` tree, shape is a parity item (#111),
   heavy-embed intent-gate canon (#112), legal-link canon (#113), pre-paint
   persisted-chrome init + deferred-hydration contract (#114), layout-stability
-  canon (#115), and the a11y closeout canons — skip link, real `inert`, stable
+  canon (#115), and the a11y closeout canons, skip link, real `inert`, stable
   tab ids, ⌘K, `test-session` key, unique landmarks (#116).
 
 - `templates/Dockerfile.python`, per-context `templates/dockerignore.{go,web,python}`,
@@ -269,7 +269,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   procedures for coding agents.
 - `templates/`: canonical community-health and config templates (LICENSE,
   CODEOWNERS, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, dotfile templates stored
-  without the leading dot — `gitignore`, `editorconfig`, `dockerignore.root` —
+  without the leading dot, `gitignore`, `editorconfig`, `dockerignore.root`,
   a dependabot example, and PR/issue templates), shared byte-identically across
   CueLABS repositories.
 
@@ -287,7 +287,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   templates for every product (#136).
 
 - `SKILL.md`: deploy truth reconciled by surface — websites ride Firebase
-  App Hosting automatic rollouts from `main` (cuesoft-iac appHosting;
+  App Hosting automatic rollouts from `main` (infrastructure repository App Hosting config;
   live in ~30 min, verified), while API-service deploys stay tag-gated
   via the pending `release.yml`; the changelog discipline gains the
   append-into-existing-bucket rule (second headings forced dedup rounds

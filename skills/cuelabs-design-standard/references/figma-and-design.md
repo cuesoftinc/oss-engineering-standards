@@ -4,11 +4,11 @@
 
 Each repo's `design.md` defines: reference feel, color tokens (mirrored as
 Figma variables in `<product>/tokens` with **true Light/Dark modes**; plus
-foundations variables — spacing, radii, durations, z-index — in the same
+foundations variables, spacing, radii, durations, z-index, in the same
 collection), type scale,
 layout, component inventory, a numbered microinteraction catalog (`MI-n`,
 referenced from pages.md), accessibility/motion rules, and the **shared
-foundations block** — spacing scale (4px grid: 4/8/12/16/24/32/48/64),
+foundations block**, spacing scale (4px grid: 4/8/12/16/24/32/48/64),
 breakpoints (640/768/1024/1280/1536), motion durations (120/200/250/300ms) +
 easings, z-index layers (0/10/20/30/40/50), **Lucide** icons, focus ring
 (2px accent, offset 2, :focus-visible). The foundations rows are identical
@@ -39,12 +39,12 @@ How each product's Figma library is built:
   `icon/brand-<name>` (brand marks keep their official colors, unbound).
   The ecosystem auth CTA component is **`GoogleAuthButton`** (Google-only
   sign-in).
-- **Engineering practices** — auto-layout everywhere; every color
+- **Engineering practices**, auto-layout everywhere; every color
   variable-bound; tint overlays are instance-safe rects using **node-level**
   opacity (Figma drops paint-level opacity on variable-bound instance
   fills); component descriptions carry the MI/motion notes and **[Decided]**
   mappings that apply to them; OpenType tabular figures (`tnum`) must be
-  toggled manually — the plugin API cannot set font features. Two more
+  toggled manually, the plugin API cannot set font features. Two more
   API gotchas: the `description` write path HTML-escapes
   quotes/angle-brackets/ampersands at storage (write entity-safe —
   typographic quotes, no `<` or `&`), and page enumeration must use a
@@ -78,11 +78,11 @@ How each product's Figma library is built:
   **move-wire-restore** technique: the API rejects creating cross-page
   `NAVIGATE`, but reactions persist when the source frame is temporarily
   moved to the destination page, wired, and returned.
-- **Design QA loop** — before design sign-off, run audit → fix → re-verify
+- **Design QA loop**, before design sign-off, run audit → fix → re-verify
   rounds to convergence with **independent auditors** (not the builders)
   across three lenses: **completeness** (docs contract + states +
   prototype graph), **content** (wording, geometry on the 4px scale,
-  placement, and data coherence — one narrative across screens: dates,
+  placement, and data coherence, one narrative across screens: dates,
   ledgers, registries, role perspectives), and **polish** (mode flips,
   contrast, stray objects, rhythm). Findings carry node ids + severities;
   fixes are verified per-item against the finding ledger in the next

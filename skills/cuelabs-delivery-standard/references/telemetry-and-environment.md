@@ -26,7 +26,7 @@ mixed. Env: `OTEL_SERVICE_NAME`, `OTEL_EXPORTER_OTLP_ENDPOINT`,
 
 ## Environment-variable naming standard
 
-These names are canonical across CueLABS repos. Doppler `<project>/stg` is the
+These names are canonical across CueLABS repos. The `stg` config in your secrets manager is the
 source of values; `.env.example` documents names with dev-safe defaults.
 OpenTelemetry names are listed above.
 
@@ -64,7 +64,7 @@ OpenTelemetry names are listed above.
 Naming rules:
 
 - Name a variable after the dependency (`DATABASE_`, `REDIS_`, `STORAGE_`); a vendor prefix only for that vendor's own API (`BREVO_`, `PAYSTACK_`, `AIVEN_`).
-- No app or environment prefixes (`<APP>_`, `STG_`): the Doppler project and config carry them.
+- No app or environment prefixes (`<APP>_`, `STG_`): the secrets-manager project and config carry them.
 - Lists are plural and comma-separated; booleans are `true` or `false`; durations are strings such as `15m`.
 - Secret names end in `_SECRET`, `_PASSWORD`, `_KEY` or `_TOKEN`.
 - Browser values use `NEXT_PUBLIC_` or `VITE_` and are never secret.

@@ -22,8 +22,8 @@ api/
 web/                 Next.js marketing site + dashboard
 mobile/
   flutter/           Primary cross-platform app (Dart)
-  android/           Native Android (Kotlin) — placeholder until built
-  ios/               Native iOS (Swift) — placeholder until built
+  android/           Native Android (Kotlin), placeholder until built
+  ios/               Native iOS (Swift), placeholder until built
 deploy/
   docker/            Extra container assets (compose itself lives at the repo root)
   helm/              ONE standard-form chart that deploys ALL services (incl. Envoy) to k8s
@@ -68,8 +68,8 @@ extraction/decision work, and Go persists the result. In that shape:
 **These files must have parity across all CueLABS™ repos** — byte-identical,
 sourced from [`assets/templates/`](../assets/templates/). Only `README.md`, `CHANGELOG.md`,
 and `.github/dependabot.yml` are repo-specific (repo overview, its own history,
-and its own manifest scoping); everything else in the table below — including the
-compose-driven, mobile-ready `Makefile` — is identical across repos.
+and its own manifest scoping); everything else in the table below, including the
+compose-driven, mobile-ready `Makefile`, is identical across repos.
 
 | File | Purpose |
 |------|---------|
@@ -166,11 +166,11 @@ its own layout below. Never call this service's directory `node` or
 
 **Next.js (`web`):**
 ```
-src/app/                      routes — home at `/`, product dashboard at `/dashboard`
+src/app/                      routes, home at `/`, product dashboard at `/dashboard`
 src/{auth,components,config,controllers,design,generated,lib,mocks,models}
 src/proto/                    generated protocol clients, only when needed
 ```
-Minimal root `layout.tsx` (html/body — plus a CSS-in-JS registry only where the
+Minimal root `layout.tsx` (html/body, plus a CSS-in-JS registry only where the
 repo uses one); the home page
 renders its own shell; `/dashboard` gets a nested `layout.tsx`. `@/*` → `./src/*`,
 `output: "standalone"`.
@@ -272,11 +272,11 @@ Start from an empty repository and add surfaces only as they become real.
    "P-04 default theme: dark, because the product is a developer tool" —
    and record it only after the user confirms. Batch the proposals into one
    question rather than asking row by row. Rows for `planned`/`absent`
-   surfaces read `n/a`; rows the user defers stay `—` and are reported as
+   surfaces read `n/a`; rows the user defers keep the template's placeholder and are reported as
    open decisions.
 5. **Copy the shared files**: `<cli> apply --repo .` copies every missing
    profile-managed file (community health, `.gitignore`, `.editorconfig`,
-   and — once a surface is `active` — the `Makefile`, `.dockerignore`, and
+   and, once a surface is `active`, the `Makefile`, `.dockerignore`, and
    `.env.example`).
 6. **Build a surface** when it moves to `active` (update the manifest in
    the same change):

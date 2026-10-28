@@ -4,8 +4,8 @@ Use the templates bundled with `$cuelabs-engineering-standards` when applying
 these conventions.
 
 ## Deploy convention
-A single `deploy/helm` chart deploys **all** services — including the Envoy
-gRPC-Web proxy where used — into a Kubernetes cluster. Do **not** create a
+A single `deploy/helm` chart deploys **all** services, including the Envoy
+gRPC-Web proxy where used, into a Kubernetes cluster. Do **not** create a
 standalone `deploy/envoy/`; Envoy config lives inside the Helm chart.
 
 The chart is standard-form (see core `assets/templates/helm/`): split
@@ -22,7 +22,7 @@ Chart gotchas that cost real time:
   named users and rejects the pod otherwise.
 - **Bump `Chart.yaml` version on every chart change** — the terraform helm
   provider does not upgrade local charts whose version is unchanged.
-- Images live under the `cuesoft` Docker Hub org: `cuesoft/<repo>-<service>`.
+- Images live under the product's container registry organization: `<org>/<repo>-<service>`.
 
 `deploy/terraform` (see core `assets/templates/terraform/`) is **cluster-agnostic**: the
 helm provider authenticates via kubeconfig (`kubeconfig_path`/`kube_context`

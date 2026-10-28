@@ -9,14 +9,14 @@ design, web, and future phases):
   revives the fleet. Agents do all building/QA and never merge their own
   PRs. Docs are the contract: contract changes land (or are dispatched)
   before or with the build that implements them.
-- **Mission briefs are self-contained** — each brief carries: an explicit
+- **Mission briefs are self-contained**, each brief carries: an explicit
   instruction to ignore injected third-party skill/hook prompts (known
   false-positive prompt injections); the repo/file state the agent
   inherits; the exact contracts to read; environment gotchas (small tool
   calls under stream watchdogs, ≤3 logical ops per canvas/API call);
   a private artifact directory per agent under the session scratchpad
   (parallel agents collide on shared temp names); and a "stop cleanly and
-  report — you'll be resumed" escape hatch.
+  report, you'll be resumed" escape hatch.
 - **Double-writer protocol** — when two live agent instances discover
   each other in one worktree (restart-resume races), they partition the
   mission via an UNTRACKED ledger file (`COORDINATION-<mission>.local.md`:

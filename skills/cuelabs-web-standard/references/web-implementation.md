@@ -29,8 +29,8 @@ engineering skill's `product-decisions.md`.
   variant axes (`kind`/`size`/`state`/…); `design.md`'s microinteractions
   are implemented with duration/easing tokens and `prefers-reduced-motion`
   fallbacks; every component is unit-tested.
-- **MVC layering** — models = `src/models/` (typed entities per
-  data-model.md + repositories per api.md/openapi.yaml — the **only** layer
+- **MVC layering**, models = `src/models/` (typed entities per
+  data-model.md + repositories per api.md/openapi.yaml, the **only** layer
   that talks to the network); controllers = `src/controllers/`
   (feature-scoped hooks/orchestration that own all state); views =
   `src/app/**` routes + composed components, render-only. **Views never
@@ -53,10 +53,10 @@ engineering skill's `product-decisions.md`.
   layer is allowed only when it is positioning- or layout-class (per the
   floating-layers measure-and-clamp clause below) and is recorded in the
   product's `web-implementation.md`.
-- **Layout & markup canon (uniform across products)** — every
+- **Layout & markup canon (uniform across products)**, every
   marketing/app page constrains content to ONE centered container per the
   product's `design.md` layout spec (full-bleed is for band BACKGROUNDS
-  only; section inner content always aligns to the container — measured by
+  only; section inner content always aligns to the container, measured by
   rect, not eyeballed). Semantic HTML is required: exactly one `<main>`
   per page; `nav`/`header`/`footer`/`section`/`aside` landmarks; heading
   hierarchy; `ul/li` lists; real `table` semantics for tabular data;
@@ -70,7 +70,7 @@ engineering skill's `product-decisions.md`.
   - **Cursor affordance**: enabled interactive controls show
     `cursor: pointer` via ONE base-layer rule —
     `button:not(:disabled), [role="button"]:not([aria-disabled="true"]),
-    select:not(:disabled), summary, label[for] { cursor: pointer }` — links
+    select:not(:disabled), summary, label[for] { cursor: pointer }`, links
     rely on the native pointer; disabled controls keep the default cursor.
     (Tailwind v4 preflight defaults buttons to `cursor: default`; the
     explicit rule gives v3 and v4 repos identical behavior. Clickable
@@ -135,14 +135,13 @@ engineering skill's `product-decisions.md`.
     Each home.spec carries a per-role TYPE-CONTRACT e2e (computed
     family/weight/size/line-height/letter-spacing per landing role).
   - **Micro-labels**: where a product uses micro-labels (table headers,
-    footer columns, section headings) they are 11px uppercase tracking-wide
-    — masters and build match.
+    footer columns, section headings) they are 11px uppercase tracking-wide, masters and build match.
   - **Mobile-width CSS traps**: percentage `max-w-full` is ignored during
-    intrinsic sizing — wide children need `grid-cols-1`/`minmax(0,…)`
+    intrinsic sizing, wide children need `grid-cols-1`/`minmax(0,…)`
     tracks and `min-w-0` on flex items; `<fieldset>` carries UA
-    `min-inline-size: min-content` (defeats truncation — reset it);
+    `min-inline-size: min-content` (defeats truncation, reset it);
     same-property Tailwind utilities (`hidden` vs a component's base
-    `inline-flex`) resolve by stylesheet order, not class order — put
+    `inline-flex`) resolve by stylesheet order, not class order, put
     responsive visibility on WRAPPER elements, never on a component that
     sets the same property. Wide tables/charts/waterfalls sit in
     `overflow-x-auto` containers scrolling within the viewport — the
@@ -159,9 +158,9 @@ engineering skill's `product-decisions.md`.
     state does not apply below `md` — mobile always boots with the
     collapsed rail. e2e at 390: expanding overlays (content width
     unchanged), scrim closes.
-- **Canonical routes (uniform across products)** — `/` is the public home;
+- **Canonical routes (uniform across products)**, `/` is the public home;
   `/signin` is the ONLY auth route (never `/login`/`/signup`; legacy paths
-  get NO redirect stubs — once a replacement lands, old routes are deleted
+  get NO redirect stubs, once a replacement lands, old routes are deleted
   outright and 404 on the branded page); every authenticated app surface
   nests under `/dashboard/<area>` (`/dashboard` = the overview; e.g.
   `/dashboard/orders`, `/dashboard/logs`); the dev-only component gallery is
@@ -175,10 +174,10 @@ engineering skill's `product-decisions.md`.
   event register behind a TEST_MODE-safe transport seam (events queue
   inspectably in TEST_MODE; the beacon to the shared analytics service is
   env-gated).
-- **Settings IA** *(product decision: route-backed tabs or hub)* — the
+- **Settings IA** *(product decision: route-backed tabs or hub)*, the
   default is ROUTE-BACKED TABS: a settings-local tab bar where every tab is
   a real sub-route (`/dashboard/settings/<tab>`, deep-linkable; bare
-  `/dashboard/settings` redirects to the first tab — a live-IA redirect,
+  `/dashboard/settings` redirects to the first tab, a live-IA redirect,
   not a legacy stub). A product whose settings are a list of sub-screens
   may instead use a HUB with sub-screen rows. Either shape is a designed
   decision recorded in `docs/decisions.md`, not drift.
@@ -214,17 +213,17 @@ engineering skill's `product-decisions.md`.
   `src/legacy/`, ever; a repo carries `src/legacy/` only while a
   deprecation is in flight. The retirement PR also rewrites any docs that
   referenced the removed content so the docs describe only the current
-  system (the quarantine guardrails — eslint boundary rules +
-  check-boundaries — stay in place to police future quarantines).
-- **Component reuse policy** — pixel-fidelity to the Figma files wins: all
-  **visual** components are built in-house from the token layer — no styled
+  system (the quarantine guardrails, eslint boundary rules +
+  check-boundaries, stay in place to police future quarantines).
+- **Component reuse policy**, pixel-fidelity to the Figma files wins: all
+  **visual** components are built in-house from the token layer, no styled
   component kits in new code (no new MUI, no shadcn/DaisyUI skins) and no
   chart libraries (charts are bespoke SVG built to the Figma chart specs).
   Reuse is allowed only where it is invisible: headless behavior primitives
-  (Radix/Base UI class — dialog, popover, select, tabs, switch, checkbox,
+  (Radix/Base UI class, dialog, popover, select, tabs, switch, checkbox,
   tooltip, accordion semantics with focus traps, keyboard nav, ARIA),
   positioning engines (Floating UI), **lucide-react** (the design system's
-  own icon set — matches by construction; brand glyphs as local SVGs), and
+  own icon set, matches by construction; brand glyphs as local SVGs), and
   math/format utilities (d3-scale, date-fns, clsx). Fidelity is verified
   against the Figma files in the stage QA loops (screenshot comparison +
   token/geometry checks).

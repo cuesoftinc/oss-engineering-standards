@@ -17,12 +17,12 @@ data store, profile fields) are not recorded here. See
 ## Architecture conventions
 ```mermaid
 flowchart LR
-    WEB[web + dashboard<br/>Next.js — App Hosting] --> FB[Firebase / Google auth]
+    WEB[web + dashboard<br/>Next.js, App Hosting] --> FB[Firebase / Google auth]
     MOB[flutter mobile] --> FB
-    WEB --> AC[api/common — Go<br/>Cloud Run]
+    WEB --> AC[api/common, Go<br/>Cloud Run]
     MOB --> AC
-    AC --> SVC["api/&lt;svc&gt; — Python/Node/…<br/>Cloud Run"]
-    AC --> DATA[("per product: Firestore<br/>or Aiven Postgres · + shared Aiven Redis<br/>· Cloud Storage")]
+    AC --> SVC["api/&lt;svc&gt;, Python/Node/…<br/>Cloud Run"]
+    AC --> DATA[("per product: Firestore<br/>or managed Postgres · + shared managed Redis<br/>· Cloud Storage")]
 ```
 - The diagram is the default shape: one Go `api/common` plus at most one
   functional service. A product with a real multi-stage pipeline (a gateway
@@ -66,8 +66,8 @@ internals; this table is the only place the provider is named.
 |------|----------|-------------|
 | Observability gateway | OTLP receiver on 4317 (gRPC) / 4318 (HTTP) with an ingest-key header; reached through `OTEL_EXPORTER_OTLP_ENDPOINT` / `OTEL_EXPORTER_OTLP_HEADERS` | upstat |
 | Product analytics events | Public `/v1/events` API (plus `/v1/stats`, `/v1/query`); the provider repo's `docs/api.md` consumer registry is the master event registry | upstat |
-| Identity | Firebase project `sandbox-e306a` (Google sign-in only); `account.cuesoft.io` is a planned facade over it | CueLABS™ |
-| Infrastructure | The Pulumi infrastructure-as-code (IaC) stack provisions Cloud Run, App Hosting, and shared stores | CueLABS™ |
+| Identity | The sandbox Firebase project (Google sign-in only); a shared account site is planned over it | CueLABS™ |
+| Infrastructure | The infrastructure-as-code (IaC) stack provisions Cloud Run, App Hosting, and shared stores | CueLABS™ |
 | Message bus | One shared Kafka service: lanes, envelope and operations in `$cuelabs-delivery-standard`'s `shared-messaging.md`; each product records P-17 | CueLABS™ (keep-alive owner named in each product's decisions) |
 
 A new product consumes these through configuration only. Moving a role to a
@@ -82,10 +82,10 @@ The canonical text lives in `$cuelabs-delivery-standard`
 telemetry, or environment-variable work. The rules an audit or bootstrap
 needs without it:
 
-- Backends deploy to GCP Cloud Run via the Pulumi IaC stack;
+- Backends deploy to GCP Cloud Run via the IaC stack;
   frontends deploy to Firebase App Hosting; the Helm chart is the self-host
   path. Serverless functions are for probe/health-check endpoints only.
-- One environment: `stg` (the sandbox). Doppler is the source of values.
+- One environment: `stg` (the sandbox). Your secrets manager is the source of values.
 - CI is `.github/workflows/build-and-test.yml` with one job per build-ready
   surface, plus a `release.yml` that deploys the APIs on merge to `main`
   once the deploy phase lands. Other
@@ -102,8 +102,8 @@ needs without it:
 
 Every product repo carries the same docs set (GitBook Git-synced via
 `.gitbook.yaml`, nav in `docs/SUMMARY.md`; doc H1s are
-`<Product> — <Title>` and the SUMMARY nav label is exactly the H1 minus
-the product prefix — e.g. `# <Product> — Web Implementation Standard` →
+`<Product>, <Title>` and the SUMMARY nav label is exactly the H1 minus
+the product prefix — e.g. `# <Product>, Web Implementation Standard` →
 the `Web Implementation Standard` label targeting `web-implementation.md`;
 labels must match across repos):
 `overview.md setup.md prd.md decisions.md roadmap.md design.md pages.md

@@ -11,8 +11,8 @@
 
 ## Canon
 
-All products share ONE link inventory — same sections, same link counts,
-same destinations (identical hrefs) — while each product renders it in its
+All products share ONE link inventory, same sections, same link counts,
+same destinations (identical hrefs), while each product renders it in its
 own visual design. A diverging link set is a parity violation.
 `<product>` = the product slug (lowercase, as in URLs and the manifest
 `name`); `<Product>` = its display name. Values marked *(product decision)*
@@ -46,9 +46,9 @@ the engineering skill's `product-decisions.md`.
     product reads **`#<product>-lab`** — the product's real channel on the
     CueLABS™ server. Channel names are never invented: a new product's
     channel must exist before its copy ships.
-- **Brand mark**: every text occurrence of the CueLABS™ name — docs, Figma
+- **Brand mark**: every text occurrence of the CueLABS™ name, docs, Figma
   canvases, UI copy, marketing prose, AND link labels/anchor text (the footer
-  Community column link reads "CueLABS™") — is written **CueLABS™**
+  Community column link reads "CueLABS™"), is written **CueLABS™**
   (trademark symbol). The ONLY exemption is literal URLs/hostnames
   (`https://cuelabs.cuesoft.io`). **Brand copy**: the product attribution
   line reads "An open-source product by CueLABS™" — never
@@ -73,16 +73,15 @@ the engineering skill's `product-decisions.md`.
   `https://github.com/cuesoftinc/<product>/blob/main/LICENSE`. The bar
   also carries a language selector (English-only until i18n ships; the
   selector ships ahead of it) and a security-policy affordance
-  linking `https://github.com/cuesoftinc/<product>/blob/main/SECURITY.md`
-  — both styled per product design but present everywhere.
+  linking `https://github.com/cuesoftinc/<product>/blob/main/SECURITY.md`, both styled per product design but present everywhere.
 - **Marketing nav** (same composition everywhere):
-  4 text links — Features · product slot (same slot as the footer) · Docs
+  4 text links, Features · product slot (same slot as the footer) · Docs
   (GitBook root) · GitHub, where the GitHub item renders as a compact
-  **star badge** — fleet construction: GitHubMark(14) + star glyph(12) +
+  **star badge**, fleet construction: GitHubMark(14) + star glyph(12) +
   "Star" label + live count fetched client-side from the repo's
   `stargazers_count`, cached; TEST_MODE or fetch failure → neutral "Star"
-  with no number — counts are NEVER hardcoded, and Figma canvases show the
-  neutral badge — plus the ThemeToggle control, a "Sign in" **text link**,
+  with no number, counts are NEVER hardcoded, and Figma canvases show the
+  neutral badge, plus the ThemeToggle control, a "Sign in" **text link**,
   and the "Try Cloud" **primary CTA** (`/signin`). **Mobile**: below `md`
   the bar keeps the **Try Cloud primary CTA visible beside the hamburger**
   (the conversion CTA never hides); the text links collapse into a

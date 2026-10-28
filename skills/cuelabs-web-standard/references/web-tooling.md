@@ -24,7 +24,7 @@ Values marked *(product decision)* are recorded in the product's
   fetchOnlyIn, viewBoundaries); per-repo active-rule lists live in a
   marked config section keyed by `package.json` name; every rule is
   negative-tested (fires on an injected violation).
-- **Prettier** — byte-identical `.prettierrc`/`.prettierignore`;
+- **Prettier**, byte-identical `.prettierrc`/`.prettierignore`;
   `.prettierignore` is sourced from this skill's
   [bundled template](../assets/templates/prettierignore.web) and carries
   the fleet superset of generated OpenAPI + protocol-client paths so products
@@ -50,7 +50,7 @@ Values marked *(product decision)* are recorded in the product's
   CI-enforced.
   **Pre-paint persisted-chrome init**: ANY persisted layout-affecting chrome
   state (rail expansion, theme, density) resolves in a pre-paint init script
-  in the root layout — the themeInitScript pattern — never post-hydration (a
+  in the root layout, the themeInitScript pattern, never post-hydration (a
   rail animating from collapsed to expanded width after hydration costs
   0.3–0.5 CLS on every dashboard route); skeletons reserve their loaded
   heights. React 19 hydration truths (verified empirically): the
@@ -79,8 +79,7 @@ Values marked *(product decision)* are recorded in the product's
   `href="#main"`, hidden until focus, token-only construction; every
   `<main>` carries `id="main"` + `tabIndex={-1}`; e2e: first Tab on a fresh
   load lands on it, activation moves focus to main. (2) Decorative
-  interactive mocks set the REAL `inert` attribute (React 19 boolean prop)
-  — `aria-hidden` + `pointer-events-none` alone leaves focusables in the
+  interactive mocks set the REAL `inert` attribute (React 19 boolean prop), `aria-hidden` + `pointer-events-none` alone leaves focusables in the
   tab order. (3) Radix Tabs (and any aria-controls consumer) never derive
   `value` from display labels — slugified stable ids (spaces make invalid
   IDREFs, an axe critical). (4) Command palette opens on ⌘K/Ctrl+K
@@ -132,9 +131,9 @@ Values marked *(product decision)* are recorded in the product's
   **SEO plumbing canon**: every product ships `app/sitemap.ts` (public
   routes only — never dashboard/auth), `app/robots.ts` (disallow /dashboard
   + /api, sitemap ref), `metadataBase` + `alternates.canonical: "./"` in the
-  ROOT layout (the "./" form resolves per-route — verified in dev and
+  ROOT layout (the "./" form resolves per-route, verified in dev and
   prod), a 1200×630 `opengraph-image` card + twitter summary_large_image,
-  and REAL brand icons (favicon.ico multi-size + apple-icon 180 — never the
+  and REAL brand icons (favicon.ico multi-size + apple-icon 180, never the
   create-next-app stock favicon; the shared e2e pins each product's favicon
   hash ≠ siblings'), plus `app/manifest.ts` (served /manifest.webmanifest:
   product name/short_name, token theme/background colors, the icon set —
