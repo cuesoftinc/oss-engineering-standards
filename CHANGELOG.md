@@ -38,8 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- Cloud Run services declared in `cuesoft-iac` with placeholder images first (#146).
-- Docker Hub credentials come from Doppler `admin/ci` references (#146).
+- Cloud Run services declared in the infrastructure repository with placeholder images first (#146).
+- Docker Hub credentials come from the CI secrets config (#146).
 - Shared `cuesoft` Postgres user with a one-time ownership handover (#146).
 - Sweeps run as paused Cloud Scheduler jobs on `/internal/jobs/<name>` (#146).
 - Media reads and writes use signed URLs only (#146).
@@ -60,7 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Kafka consumers default to scale-to-zero with wake-ups (#145).
 - System-design method drops compacted topics; re-sends use new ids (#145).
 - System-design example uses the shared lanes and wake-ups (#145).
-- Doppler configs listed as `dev`, `stg`, `prd` and `ci` (#145).
+- Secrets configs listed as `dev`, `stg`, `prd` and `ci` (#145).
 - Install examples pin v2.2.0 (#145).
 
 ### Fixed
@@ -93,14 +93,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   service when a real multi-stage pipeline exists (gateway + processing),
   with Go staying the CRUD/data owner, a processing service owning every
   decision with no persistence of its own, and a gateway service staying
-  thin — expendit's `api/intake` (Node) + `api/process` (Python) is the
+  thin, expendit's `api/intake` (Node) + `api/process` (Python) is the
   reference case.
 - Node API service standard (NestJS, `api/<service>`, distinct from `web`):
   folder layout, file/folder naming row, `Dockerfile.node` +
   `dockerignore.node` templates, and a NestJS 11.x version pin.
 - Pub/sub (Aiven Kafka) documented as a standardized transport alongside
   gRPC and HTTP/JSON, with fleet-wide `KAFKA_BROKERS`/`KAFKA_USERNAME`/
-  `KAFKA_PASSWORD`/`KAFKA_SSL_CA` env names — chosen over gRPC s2s for
+  `KAFKA_PASSWORD`/`KAFKA_SSL_CA` env names, chosen over gRPC s2s for
   expendit/apparule/upstat's pipeline because it survives a Cloud Run
   consumer restart with zero message loss (verified against a live Aiven
   instance), where a gRPC channel can silently zombie on scale-to-zero.
@@ -131,7 +131,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   and, for the `cuelabs` profile, a `docs/decisions.md` seeded with the
   Standard parameters table (`assets/templates/decisions.md`). It validates
   the manifest before writing and never overwrites either file.
-- "Procedure B — bootstrap a new repo" is now a full walkthrough, from
+- "Procedure B, bootstrap a new repo" is now a full walkthrough, from
   `git init` through `init`, parameter decisions, `apply`, per-surface
   scaffolding, delivery, and `verify`; the README shows the quick start.
 - Trigger evaluation cases for starting a new product.
@@ -170,14 +170,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
-- Audit: the root `.env.example` is seeded, never byte-compared — the canon
+- Audit: the root `.env.example` is seeded, never byte-compared, the canon
   fixes its variable names and section format while values and
   product-specific sections diverge per repository, so customization no
   longer reads as shared-file drift (which kept every adopter at
   "Baseline conforming: no") (#138).
 - The repository's own `SECURITY.md` now carries the published reporting
   policy (private vulnerability reporting, dedicated security mailbox) (#138).
-- Changelog cut into released sections — v2.0.0 shipped with all entries
+- Changelog cut into released sections, v2.0.0 shipped with all entries
   still under Unreleased; adoption docs now also state that the catalog
   repository itself is not a manifest-carrying adopter (#138).
 
@@ -196,7 +196,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   authority and validation, shared-file drift, ordered plans, path collisions,
   and idempotent application (#137).
 
-- `SKILL.md`: fleet parity canons from the 2026-07-23 cross-repo review —
+- `SKILL.md`: fleet parity canons from the 2026-07-23 cross-repo review,
   Node 24 single-truth (CI + .nvmrc + image + README), Go single-truth
   (1.26, `app` binary, 10s health start-period), exact-pinned and
   fleet-aligned web deps with the org dependabot ignore block, the
@@ -205,7 +205,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   preset, the README fleet template with badge row, bottom-right
   dev indicators, and changelog-PR-ref amendment procedure (#133).
 
-- `SKILL.md` mobile standard: the repeating-MI test canon — screens hosting
+- `SKILL.md` mobile standard: the repeating-MI test canon, screens hosting
   repeating MI primitives run their wiring suites and seeded goldens under
   the platform reduced-motion flag (motion stays covered by the primitives'
   bounded-pump unit tests), and animated size/draw progress inside
@@ -216,7 +216,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   cadence, prove-then-revert for dispatch-only workflows) and the on-device
   IME-injection gotcha (#132).
 
-- `SKILL.md` mobile standard: build-state hygiene at the gate — flutter
+- `SKILL.md` mobile standard: build-state hygiene at the gate, flutter
   clean, daemon stops, docker image prunes, and DerivedData purges are part
   of lane closeout (#130).
 
@@ -225,39 +225,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   silent failures, danger ladder, MI primitives, destinations, forms) (#129).
 
 - `SKILL.md`: eight cross-platform parity canons from the apparule
-  mobile↔web adjudication — chrome-scoped alignment, canon-fact sweep
+  mobile↔web adjudication, chrome-scoped alignment, canon-fact sweep
   checklist, parity scope rules, session-restore gate, danger-ladder
   additions, entity-reference affordances, unit-toggle conversion, and
   single-listing cross-client constants (#128).
 
-- `SKILL.md` mobile standard: the canvas-first rule — every shipped screen
+- `SKILL.md` mobile standard: the canvas-first rule, every shipped screen
   has a Figma frame (design first or drop); frameless screens escape visual
   QA (#127).
 
-- `SKILL.md`: Mobile (Flutter) implementation standard — FVM-pinned toolchain,
+- `SKILL.md`: Mobile (Flutter) implementation standard, FVM-pinned toolchain,
   official MVVM+Repository vocabulary over a feature-first tree, Riverpod 3,
   typed go_router, mock-first fake repositories with seeded assets (TEST_MODE
   parity), Figma-variable-generated ThemeExtensions, one module per Figma
   component set, very_good_analysis + alchemist/patrol testing, dev/stg/prd
-  flavors with Doppler-fed dart-defines, and the Google-only Firebase auth
+  flavors with secrets-fed dart-defines, and the Google-only Firebase auth
   flow (#120).
 
 - `SKILL.md` web-canon sections from the 2026-07-20/21 program waves: tri-state
   theme contract (#94), double-writer coordination-ledger protocol (#95),
-  unset-theme-is-design-default ruling (#96), audit-convergence sync — danger
+  unset-theme-is-design-default ruling (#96), audit-convergence sync, danger
   ladder, chart construction, micro-labels, star-badge construction (#97),
   fleet chrome naming + date idioms (#98), settings IA shapes (#99),
-  review-round canons — floating-layer Y-flip, anatomy fidelity, findings-are-
+  review-round canons, floating-layer Y-flip, anatomy fidelity, findings-are-
   classes (#100), chart dash-normalization gotcha (#101), landing type-fidelity
   canon (#102), quiet-danger reference implementation (#104), worktree removal
   at the merge gate + the 2-build-worktree cap (#105), the FAH
   `images.unoptimized` gotcha + WebP loader canon (#106), overlay focus
   contract + named-control API (#107), SEO plumbing canon (#108),
-  contrast-token canon — `-text` variants, `on-crit`, fixed-light locales
-  (#109, #110), the canonical `web/src/` tree — shape is a parity item (#111),
+  contrast-token canon, `-text` variants, `on-crit`, fixed-light locales
+  (#109, #110), the canonical `web/src/` tree, shape is a parity item (#111),
   heavy-embed intent-gate canon (#112), legal-link canon (#113), pre-paint
   persisted-chrome init + deferred-hydration contract (#114), layout-stability
-  canon (#115), and the a11y closeout canons — skip link, real `inert`, stable
+  canon (#115), and the a11y closeout canons, skip link, real `inert`, stable
   tab ids, ⌘K, `test-session` key, unique landmarks (#116).
 
 - `templates/Dockerfile.python`, per-context `templates/dockerignore.{go,web,python}`,
@@ -269,7 +269,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   procedures for coding agents.
 - `templates/`: canonical community-health and config templates (LICENSE,
   CODEOWNERS, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, dotfile templates stored
-  without the leading dot — `gitignore`, `editorconfig`, `dockerignore.root` —
+  without the leading dot, `gitignore`, `editorconfig`, `dockerignore.root`,
   a dependabot example, and PR/issue templates), shared byte-identically across
   CueLABS repositories.
 
@@ -286,15 +286,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   add byte-identical mobile-ready Makefile + generated-client Prettier-ignore
   templates for every product (#136).
 
-- `SKILL.md`: deploy truth reconciled by surface — websites ride Firebase
-  App Hosting automatic rollouts from `main` (cuesoft-iac appHosting;
+- `SKILL.md`: deploy truth reconciled by surface, websites ride Firebase
+  App Hosting automatic rollouts from `main` (infrastructure repository App Hosting config;
   live in ~30 min, verified), while API-service deploys stay tag-gated
   via the pending `release.yml`; the changelog discipline gains the
   append-into-existing-bucket rule (second headings forced dedup rounds
   in every repo) (#135).
 
 - `SKILL.md`: the Recommended-versions Go row reconciled to the Go
-  single-truth canon — 1.26 fleet-wide with `golang:1.26-alpine`
+  single-truth canon, 1.26 fleet-wide with `golang:1.26-alpine`
   (the row still framed apparule as a lone 1.26 exception; caught by
   the pass-3 sweep) (#134).
 
@@ -314,23 +314,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `SKILL.md` mobile standard: platform floors & flavor plumbing (iOS 15 with
   Firebase 12, flutter-tool-only builds, load-bearing flavor config naming,
   seed-bundling assertion in CI) and the safe-area contract with notched test
-  surfaces — both verified on live devices (#126).
+  surfaces, both verified on live devices (#126).
 
 - `SKILL.md` mobile standard: goldens are authored on Linux (alchemist CI
   config normalizes text only; curve/gradient AA is platform-bound) via a
   dockerized regen script or dispatch workflow; `url_launcher` joins the
   pin ledger (#125).
 
-- `SKILL.md` mobile standard: flavors mirror the org environment model —
+- `SKILL.md` mobile standard: flavors mirror the org environment model,
   `dev` + `prod` only (the sandbox account is CueLABS production); the
   generic dev/stg/prd trio is rejected (#124).
 
 - `SKILL.md` mobile standard: resolver-verified pin corrections from the
-  skeleton wave — riverpod_lint 3.x as a native analyzer plugin (custom_lint
+  skeleton wave, riverpod_lint 3.x as a native analyzer plugin (custom_lint
   retired), build_runner/freezed/intl caps, gen-l10n key removal,
   go_router_builder public mixins, AGP 9 resValues default (#123).
 
-- `SKILL.md` mobile standard: legacy-quarantine rule — superseded code moves
+- `SKILL.md` mobile standard: legacy-quarantine rule, superseded code moves
   to `lib/legacy/` and is removed only after its replacement ships with an
   explicit user go (#121).
 
