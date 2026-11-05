@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.6.0] - 2026-11-05
+
 ### Added
 
 - Managed ClickHouse as the telemetry store, with three users.
