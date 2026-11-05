@@ -25,9 +25,13 @@
   automatic rollouts from `main` (declared as appHosting backends in
   the IaC stack, `rootDirectory: /web`; a web-visible
   merge is live within about 30 minutes). API-SERVICE deploys run on
-  **merge to `main`**: `release.yml` (added with the product's deploy
-  phase) triggers on `push` to `main` filtered to `api/**`, pushes
-  `<org>/<repo>-api-<service>` images tagged with the short sha and
+  **merge to `main`**: every product with a backend carries `release.yml`,
+  which triggers on `push` to `main` filtered to `api/**`,
+  `.github/workflows/release.yml` and `.github/scripts/**` (plus any other
+  image source the product builds, such as `functions/**` for probes or a
+  collector image's build files), runs in the `Sandbox` environment as an
+  `images · build + push` job and a `deploy · Cloud Run (Sandbox)` job,
+  pushes `<org>/<repo>-api-<service>` images tagged with the short sha and
   `latest`, and points the existing Cloud Run services at the new digests.
   No version tags or GitHub releases are cut while products have no
   production. GitHub Actions itself never deploys the sites.
@@ -40,8 +44,15 @@
   the secrets manager's CI scope and reach each product's `ci` config as references.
 - **Sweeps are Cloud Scheduler jobs**: each calls
   `POST /internal/jobs/<name>` on `api-common` with an OIDC token for the
-  product's runtime account, and is created paused in the IaC stack until
-  its handler has shipped.
+  product's runtime account. The IaC stack declares them per product
+  (`jobPrefix: <product>`, one `{ name, schedule }` per job) in the same
+  change that ships the handler; a job is never declared ahead of it.
+- **Private services are called with an ID token.** A Cloud Run service
+  that is not public lists its callers' service accounts as `invokers` in
+  the IaC stack; each caller fetches a Google ID token from the metadata
+  server with the target's URL as the audience, caches it until a few
+  minutes before it expires, and sends it as `Authorization: Bearer`.
+  Local and self-host runs skip the token (no `K_SERVICE`).
 - **GitHub Actions standard (uniform across repos)**:
   standardized workflow families with identical shared jobs and conventions —
   `.github/workflows/build-and-test.yml` (workflow name `build-and-test`;
@@ -70,7 +81,7 @@
   in TEST_MODE, installs chromium, runs `test:e2e` with TEST_MODE+CI env,
   and uploads `web/playwright-report` as artifact `playwright-report`
   (retention 7) on failure) and the `release.yml` that deploys the APIs on
-  merge to `main` (added with the product's deploy phase). Workflow files beyond these families and
+  merge to `main`. Workflow files beyond these families and
   explicitly ratified surface workflows are a standards deviation and need
   ratification. CodeQL runs via GitHub DEFAULT SETUP
   (a repo setting, `gh api repos/<org>/<repo>/code-scanning/default-setup`),
@@ -122,8 +133,19 @@
 - Data plane (cloud): per-product choice of **managed Postgres** or **Firestore**
   (Firebase-native/real-time products → Firestore; financial/relational →
   Postgres; recorded in the product's `docs/decisions.md`). Shared **managed
-  Redis** with `REDIS_DB`-index tenancy per product/config (discrete
-  `REDIS_*` vars). In `stg`, Firestore products use the sandbox's
+  Redis** with one ACL user per product, limited to keys under
+  `<product>:` (`REDIS_KEY_PREFIX`) and its own channels (discrete
+  `REDIS_*` vars). Telemetry and analytics stores use **managed ClickHouse**
+  (one service per product, idle scaling so an unused service costs
+  nothing, TLS on 8443): the IaC stack owns the service, database and users,
+  and the product's migrations own the tables and row policies. Three users
+  with one password each: an admin user for migrations
+  (`CLICKHOUSE_MIGRATE_USER`), a loader that may only insert
+  (`CLICKHOUSE_LOADER_USER`), and a read-only query user under a
+  `readonly` profile (`CLICKHOUSE_QUERY_USER`), all against
+  `CLICKHOUSE_URL`. A service that migrates at boot exits when the store is
+  stopped, so a product's ClickHouse service is never stopped while the
+  product is deployed. In `stg`, Firestore products use the sandbox's
   `sandbox` database and Postgres products get a database on the shared
   managed Postgres service, all connecting as the shared `<app_user>` (no
   per-product database users). The IaC stack creates the database owned by
@@ -163,16 +185,18 @@
   in [shared-messaging.md](shared-messaging.md); a product never creates its
   own topics. Only the deployed `stg` services use the shared service; local
   compose and self-host stacks run their own broker.
-- **Kafka consumers need a running workload.** A Kafka message does not
-  start a Cloud Run instance that has scaled to zero, and under the default
-  request-based billing an instance gets no CPU outside a request, so a
-  consumer on a default Cloud Run service stops consuming. Every Kafka
-  consumer runs as a Cloud Run service at min 0 with instance-based billing
-  and **wake-ups**: whatever publishes for the consumer sends it a
-  `GET /health` that carries no data, and the owner's sweep re-wakes
-  services while work is in flight
-  ([shared-messaging.md](shared-messaging.md), "Scale to zero"). Worker
-  pools and `min-instances >= 1` are not used: nothing is always on.
+- **Kafka consumers run at min 0 with request-based CPU.** A Kafka message
+  does not start a Cloud Run instance that has scaled to zero, and an
+  instance gets CPU only inside a request, so nothing is billed while a
+  product is idle and work that must finish happens inside a request:
+  whatever publishes for a consumer sends it a `GET /health` that carries
+  no data (a **wake-up**), the consumer works while Cloud Run keeps the
+  instance, and the owner's scheduled sweep finishes what a wake-up left
+  (it re-wakes services while its store shows work in flight, or calls the
+  consumer's `POST /internal/settle`, which answers once its lanes are
+  caught up) ([shared-messaging.md](shared-messaging.md), "Scale to
+  zero"). Worker pools, CPU always allocated and `min-instances >= 1` are
+  not used: nothing is always on.
   Document the wake-up wiring in `docs/deployment.md`. See Google's
   [instance autoscaling](https://docs.cloud.google.com/run/docs/about-instance-autoscaling)
   notes for the scale-from-zero and background-CPU limits.

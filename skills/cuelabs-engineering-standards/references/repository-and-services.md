@@ -215,7 +215,7 @@ Helm, or Terraform. The structural rules:
 ## Cleanup rules (when standardizing)
 Remove (safe — not application code):
 - **Non-canonical GitHub Actions workflow files**: preserve the ratified
-  `.github/workflows/build-and-test.yml`, the deferred merge-to-`main` `release.yml`
+  `.github/workflows/build-and-test.yml`, the merge-to-`main` `release.yml`
   when present, and ratified surface workflows such as the mobile
   `mobile-goldens.yml` and `mobile-e2e.yml`; remove obsolete, duplicate,
   misplaced, or unratified workflow files.

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Managed ClickHouse as the telemetry store, with three users.
+- ClickHouse environment variable names in the env table.
+- Private Cloud Run services are called with metadata-server ID tokens.
+
+### Changed
+
+- Kafka consumers run with request-based CPU and settle calls.
+- Every backend product carries `release.yml`; its triggers and jobs are stated.
+- Scheduler jobs ship with their handlers instead of starting paused.
+- Redis tenancy is a user and key prefix per product.
+
 ## [2.5.0] - 2026-10-27
 
 ### Changed

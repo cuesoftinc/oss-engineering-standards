@@ -190,8 +190,9 @@ storing the work), and the owner keeps the first result per request id.
 ## Deployment
 
 - Queue consumers never scale to zero by themselves: a message does not
-  wake a scaled-to-zero instance. Run them at zero with **wake-ups** (CPU
-  always allocated while an instance is up; whatever publishes for a
+  wake a scaled-to-zero instance. Run them at zero with request-based CPU
+  and **wake-ups** (an instance has CPU only inside a request, so work that
+  must finish happens inside one; whatever publishes for a
   consumer sends it a request that carries no data, `GET /health`, so the
   platform starts an instance, and the owner's sweep re-wakes services
   while its store shows work in flight). Worker pools and minimum

@@ -1,7 +1,7 @@
 # CueLABS Shared Message Bus
 
 Every CueLABS™ product that uses a queue shares **one managed Kafka service**,
-the same way products share one managed Redis with `REDIS_DB` tenancy. This
+the same way products share one managed Redis with a user per product. This
 page is the contract between those products. A product's
 `docs/system-design.md` lists only its own events and points here for
 topics, envelope, limits and operations.
@@ -112,8 +112,12 @@ and process `stg` work.
 
 ## Scale to zero
 
-Cloud Run services that consume run at **min 0 with CPU always allocated**.
-Whoever publishes for a consumer that may be asleep wakes it with a
+Cloud Run services that consume run at **min 0 with request-based CPU**:
+an instance has CPU only while it serves a request, so idle costs nothing
+and work that must finish happens inside one. A write publishes its
+outbox rows before it answers, and a scheduled pass that needs its
+consumers caught up ends with `POST /internal/settle` on each, which
+answers once that consumer's lanes are drained. Whoever publishes for a consumer that may be asleep wakes it with a
 `GET /health` that carries no data (with a Cloud Run ID token when the target requires
 authentication), debounced for about 10 seconds. Base URLs come from
 `WAKE_<TARGET>_URL` settings; unset means "always running" (compose, Helm).
