@@ -31,7 +31,7 @@ when the surface becomes `active`.
 | P-06 | Settings IA | `tabs` (route-backed, default) or `hub` | Web and mobile settings |
 | P-07 | Date idiom per surface class | `absolute`, `relative`, or `utc-absolute` for each surface class the product has | Web, mobile, `design.md` |
 | P-08 | Command palette | `none`, or `⌘K/Ctrl+K` plus any extra aliases | Web a11y canon |
-| P-09 | Data store | `postgres` or `firestore`, plus the product's `REDIS_DB` index | Backend, env, deploy |
+| P-09 | Data store | `postgres` or `firestore`, plus the product's Redis key prefix | Backend, env, deploy |
 | P-10 | Services and host ports | `api/common` 8080, `web` 3000, then each extra `api/<svc>` 8081+ in order added | Compose, Helm, `.env.example` |
 | P-11 | Service transport | Per service pair: `http`, `grpc`, or `pubsub` (with the reason when not `http`) | Backend, delivery |
 | P-12 | KYC tier contents | Tier-1 fields; tier-2 provider and trigger, or `n/a` | Profile, flows, `data-model.md` |

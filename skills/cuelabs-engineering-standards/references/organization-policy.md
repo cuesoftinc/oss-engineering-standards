@@ -88,7 +88,7 @@ needs without it:
 - One environment: `stg` (the sandbox). Your secrets manager is the source of values.
 - CI is `.github/workflows/build-and-test.yml` with one job per build-ready
   surface, plus a `release.yml` that deploys the APIs on merge to `main`
-  once the deploy phase lands. Other
+  in every product with a backend. Other
   workflow files need ratification.
 - HTTP/JSON is the default API; gRPC and pub/sub (Kafka) are standardized
   options for documented transport needs. Every product on Kafka uses the
