@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
-- The dependabot template groups `pub` updates, carries the npm major-version `ignore` blocks for `/web` and Node API entries, and states why there is no `github-actions` entry (#198).
+- The dependabot template groups `pub` updates, carries the npm major-version `ignore` blocks for `/web` and Node API entries, and states why there is no `github-actions` entry. Go modules linked by a `replace` directive share one entry (#198).
 
 ## [2.6.0] - 2026-11-05
 

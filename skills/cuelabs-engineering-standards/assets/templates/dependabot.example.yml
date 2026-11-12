@@ -7,8 +7,10 @@
 # by a per-repo bot (repository-and-services.md).
 version: 2
 updates:
+  # One entry for every Go module; when one module imports another through a
+  # `replace` directive, list both in `directories` so they move together.
   - package-ecosystem: gomod
-    directory: /api/common
+    directories: ["/api/common"]   # e.g. ["/api/common", "/api/query"]
     schedule: { interval: weekly }
     groups:
       go-dependencies: { patterns: ["*"] }
