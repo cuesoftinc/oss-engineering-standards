@@ -41,12 +41,23 @@ CUELABS_APPLICATION_TEMPLATE_TARGETS = {
     "Makefile": "Makefile",
     "dockerignore.root": ".dockerignore",
     "env.example": ".env.example",
+    "gitattributes": ".gitattributes",
+    "gitbook.yaml": ".gitbook.yaml",
+    "gitbook-docs.yaml": "gitbook-docs.yaml",
 }
 
 # Seeded targets are copied when missing but never byte-compared afterwards:
 # the canon fixes their variable NAMES and section format, while values and
 # product-specific sections legitimately diverge per repository.
-SEEDED_TEMPLATE_SOURCES = {"env.example"}
+SEEDED_TEMPLATE_SOURCES = {"env.example", "gitbook-docs.yaml"}
+
+# Seeded templates whose `{{product}}` / `{{Product}}` placeholders `apply`
+# fills from the manifest name.
+RENDERED_TEMPLATE_SOURCES = {"gitbook-docs.yaml"}
+
+# Product files every active CueLABS application carries but whose content is
+# its own, so the audit checks presence only.
+CUELABS_APPLICATION_REPOSITORY_FILES = ["service.datadog.yaml"]
 
 PORTABLE_REPOSITORY_FILES = [
     "CODEOWNERS",
@@ -827,6 +838,8 @@ def inspect(repo: Path) -> Audit:
             repository_specific.extend(PORTABLE_APPLICATION_FILES)
     if has_active_application(surfaces):
         repository_specific.append(".github/dependabot.yml")
+        if manifest.profile == "cuelabs":
+            repository_specific.extend(CUELABS_APPLICATION_REPOSITORY_FILES)
     missing_specific = sorted(
         path for path in repository_specific if not (repo / path).is_file()
     )
@@ -1013,13 +1026,23 @@ def apply_missing(repo: Path) -> list[str]:
         raise BlockingCollision(audit.blocking_collisions)
     copied: list[str] = []
     targets = required_targets(audit.profile, audit.surfaces)
+    manifest = load_manifest(repo / ".cuelabs" / "project.yaml", required=False)
+    name = str((manifest.data or {}).get("name", ""))
     for source_name, destination_name in targets.items():
         source = TEMPLATE_ROOT / source_name
         destination = repo / destination_name
         if destination.exists():
             continue
         destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source, destination)
+        if source_name in RENDERED_TEMPLATE_SOURCES and name:
+            destination.write_text(
+                render_product_placeholders(
+                    source.read_text(encoding="utf-8"), name
+                ),
+                encoding="utf-8",
+            )
+        else:
+            shutil.copyfile(source, destination)
         copied.append(destination_name)
     return copied
 
@@ -1067,6 +1090,12 @@ def render_manifest(name: str, profile: str, surfaces: dict[str, str]) -> str:
         lines.extend(f"    {child}: {status}" for child, status in children.items())
     lines += ["", "capabilities: {}", "deployment: {}", "deviations: []", ""]
     return "\n".join(lines)
+
+
+def render_product_placeholders(text: str, name: str) -> str:
+    """Fill `{{product}}` with the slug and `{{Product}}` with a title-cased guess."""
+    display_name = name[:1].upper() + name[1:]
+    return text.replace("{{Product}}", display_name).replace("{{product}}", name)
 
 
 def render_decisions(name: str, display_name: str) -> str:

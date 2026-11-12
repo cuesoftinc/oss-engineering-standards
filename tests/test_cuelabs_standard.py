@@ -99,6 +99,7 @@ class StandardsCliTest(unittest.TestCase):
         )
         (self.repo / ".github").mkdir(exist_ok=True)
         (self.repo / ".github" / "dependabot.yml").write_text("version: 2\n")
+        (self.repo / "service.datadog.yaml").write_text("apiVersion: v3\n")
 
         audit = standard.inspect(self.repo)
 
@@ -113,6 +114,53 @@ class StandardsCliTest(unittest.TestCase):
         audit = standard.inspect(self.repo)
 
         self.assertIn(".env.example", audit.missing_shared_files)
+
+    def test_apply_seeds_docs_site_files_with_product_name(self) -> None:
+        self.write_manifest("  web: active\n")
+
+        copied = standard.apply_missing(self.repo)
+
+        self.assertIn(".gitbook.yaml", copied)
+        self.assertIn(".gitattributes", copied)
+        self.assertIn("gitbook-docs.yaml", copied)
+        site = (self.repo / "gitbook-docs.yaml").read_text()
+        self.assertIn("key: fixture\n", site)
+        self.assertIn("title: Fixture\n", site)
+        self.assertNotIn("{{", site)
+
+    def test_customized_gitbook_site_is_seeded_not_drift(self) -> None:
+        self.write_manifest("  web: active\n")
+        self.copy_required_templates(application=True)
+        (self.repo / "gitbook-docs.yaml").write_text("site:\n  title: Other\n")
+        (self.repo / ".github").mkdir(exist_ok=True)
+        (self.repo / ".github" / "dependabot.yml").write_text("version: 2\n")
+        (self.repo / "service.datadog.yaml").write_text("apiVersion: v3\n")
+
+        audit = standard.inspect(self.repo)
+
+        self.assertNotIn("gitbook-docs.yaml", audit.drifted_shared_files)
+        self.assertTrue(audit.conforming)
+
+    def test_gitbook_config_drift_fails_conformance(self) -> None:
+        self.write_manifest("  web: active\n")
+        self.copy_required_templates(application=True)
+        (self.repo / ".gitbook.yaml").write_text("root: ./\n")
+
+        audit = standard.inspect(self.repo)
+
+        self.assertIn(".gitbook.yaml", audit.drifted_shared_files)
+        self.assertFalse(audit.conforming)
+
+    def test_active_application_requires_datadog_service_definition(self) -> None:
+        self.write_manifest("  web: active\n")
+        self.copy_required_templates(application=True)
+        (self.repo / ".github").mkdir(exist_ok=True)
+        (self.repo / ".github" / "dependabot.yml").write_text("version: 2\n")
+
+        audit = standard.inspect(self.repo)
+
+        self.assertIn("service.datadog.yaml", audit.missing_repository_files)
+        self.assertFalse(audit.conforming)
 
     def test_invalid_manifest_is_rejected(self) -> None:
         manifest = self.repo / ".cuelabs" / "project.yaml"
@@ -395,6 +443,7 @@ class StandardsCliTest(unittest.TestCase):
         )
         self.copy_required_templates(application=True)
         (self.repo / ".github" / "dependabot.yml").write_text("version: 2\n")
+        (self.repo / "service.datadog.yaml").write_text("apiVersion: v3\n")
 
         audit = standard.inspect(self.repo)
 
@@ -499,6 +548,7 @@ class StandardsCliTest(unittest.TestCase):
         self.write_manifest("  go-api: active\n")
         self.copy_required_templates(application=True)
         (self.repo / ".github" / "dependabot.yml").write_text("version: 2\n")
+        (self.repo / "service.datadog.yaml").write_text("apiVersion: v3\n")
 
         audit = standard.inspect(self.repo)
 
@@ -542,6 +592,7 @@ class StandardsCliTest(unittest.TestCase):
         self.write_manifest("  backend:\n    go: active\n")
         self.copy_required_templates(application=True)
         (self.repo / ".github" / "dependabot.yml").write_text("version: 2\n")
+        (self.repo / "service.datadog.yaml").write_text("apiVersion: v3\n")
 
         audit = standard.inspect(self.repo)
 
@@ -552,6 +603,7 @@ class StandardsCliTest(unittest.TestCase):
         self.write_manifest("  web:\n    storefront: active\n")
         self.copy_required_templates(application=True)
         (self.repo / ".github" / "dependabot.yml").write_text("version: 2\n")
+        (self.repo / "service.datadog.yaml").write_text("apiVersion: v3\n")
 
         audit = standard.inspect(self.repo)
 

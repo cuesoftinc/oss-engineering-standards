@@ -101,7 +101,7 @@ needs without it:
 ## Documentation standard (docs/)
 
 Every product repo carries the same docs set (GitBook Git-synced via
-`.gitbook.yaml`, nav in `docs/SUMMARY.md`; doc H1s are
+`.gitbook.yaml`, with the site named and mapped by `gitbook-docs.yaml`, nav in `docs/SUMMARY.md`; doc H1s are
 `<Product>, <Title>` and the SUMMARY nav label is exactly the H1 minus
 the product prefix — e.g. `# <Product>, Web Implementation Standard` →
 the `Web Implementation Standard` label targeting `web-implementation.md`;
