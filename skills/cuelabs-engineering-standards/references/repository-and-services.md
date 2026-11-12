@@ -67,9 +67,11 @@ extraction/decision work, and Go persists the result. In that shape:
 
 **These files must have parity across all CueLABS™ repos** — byte-identical,
 sourced from [`assets/templates/`](../assets/templates/). Only `README.md`, `CHANGELOG.md`,
-and `.github/dependabot.yml` are repo-specific (repo overview, its own history,
-and its own manifest scoping); everything else in the table below, including the
-compose-driven, mobile-ready `Makefile`, is identical across repos.
+`.github/dependabot.yml` and `service.datadog.yaml` are repo-specific (repo
+overview, its own history, its own manifest scoping and its own service
+catalog entries). `.env.example` and `gitbook-docs.yaml` are seeded from their
+templates and then hold product values. Everything else in the table below,
+including the compose-driven, mobile-ready `Makefile`, is identical across repos.
 
 | File | Purpose |
 |------|---------|
@@ -85,6 +87,10 @@ compose-driven, mobile-ready `Makefile`, is identical across repos.
 | `.editorconfig` | Shared editor settings (tabs for Go) |
 | `Makefile` | Compose-driven standard targets plus guarded `mobile-goldens`; identical across repos |
 | `.env.example` | Root env template: per-service sections, dev-safe defaults, `NEXT_PUBLIC_*` block |
+| `.gitattributes` | Forces LF on `*.sh`, which run inside Linux containers |
+| `.gitbook.yaml` | GitBook Git Sync for the space: `root: ./docs/`, `overview.md` as the readme, `SUMMARY.md` as the nav |
+| `gitbook-docs.yaml` | GitBook site-wide Git Sync: names the site and maps its one space (key = product slug, P-01) to the repository root. Seeded from the template; never change `key` afterwards, or GitBook creates a new space |
+| `service.datadog.yaml` | **Repo-specific.** Datadog service catalog (`apiVersion: v3`): one `kind: service` document per deployed service and one `kind: datastore` per datastore. Each carries `metadata.name` (`<product>-<component>`), `metadata.owner`, `metadata.tags` (`app:<product>`, `component:<name>`), `metadata.contacts`, `metadata.links` (repository at least) and `spec.lifecycle`, `spec.tier`, `spec.type` and `spec.languages` |
 | `.github/dependabot.yml` | **Scoped per manifest**, grouped per ecosystem |
 | `.github/PULL_REQUEST_TEMPLATE.md` | PR checklist |
 | `.github/ISSUE_TEMPLATE/` | bug_report, feature_request, config.yml |
@@ -99,8 +105,12 @@ the standard-form
 Helm chart skeleton (`helm/`), and cluster-agnostic terraform (`terraform/`). Dotfile templates are stored
 **without** a leading dot so they stay visible and are never applied to this repo
 by accident — when adopting them, copy `assets/templates/gitignore` → `.gitignore`,
-`assets/templates/dockerignore.root` → `.dockerignore`, and `assets/templates/editorconfig` →
-`.editorconfig`; copy `assets/templates/prettierignore.web` →
+`assets/templates/dockerignore.root` → `.dockerignore`, `assets/templates/editorconfig` →
+`.editorconfig`, `assets/templates/gitattributes` → `.gitattributes` and
+`assets/templates/gitbook.yaml` → `.gitbook.yaml`; copy
+`assets/templates/gitbook-docs.yaml` → `gitbook-docs.yaml` (`apply` fills
+`{{product}}` from the manifest name and `{{Product}}` with a title-cased guess;
+correct the display name if it differs); copy `assets/templates/prettierignore.web` →
 `web/.prettierignore`.
 
 **Changelog discipline**: `CHANGELOG.md` follows Keep a Changelog strictly —

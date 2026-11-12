@@ -31,6 +31,9 @@ Values marked *(product decision)* are recorded in the product's
   never customize it when gRPC arrives; one brace glob
   `**/*.{ts,tsx,js,jsx,mjs,cjs}` (prettier hard-errors on zero-match patterns —
   never enumerate separate globs).
+- **`web/.gitignore` ignores `AGENTS.md`**: `next dev` (Next 16) writes
+  `web/AGENTS.md` on every run. It is generated, never committed; agent
+  guidance for the repository lives at the root, not in `web/`.
 - **Vitest** — canonical config: `@vitejs/plugin-react` +
   `vite-tsconfig-paths` + root `./vitest.setup.ts`, jsdom default.
   Repo-specific needs stay as COMMENTED, labeled blocks (for example leaving

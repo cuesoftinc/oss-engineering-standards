@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `.gitattributes`, `.gitbook.yaml` and `gitbook-docs.yaml` templates; the audit checks them on every active product, and `apply` seeds `gitbook-docs.yaml` with the product name.
+- The audit requires a repo-specific `service.datadog.yaml` on every active CueLABS product; the root-file table lists its required fields.
+- The web standard ignores the `web/AGENTS.md` that `next dev` writes.
+
 ## [2.6.0] - 2026-11-05
 
 ### Added
