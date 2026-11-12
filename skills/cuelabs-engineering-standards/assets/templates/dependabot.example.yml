@@ -1,7 +1,10 @@
 # Copy to .github/dependabot.yml and keep ONE entry per real manifest directory.
 # Never point at dead/deprecated directories (e.g. web/.deprecated).
-# NOTE: no `github-actions` entry — this standard uses no CI workflows, so a
-# github-actions updater would fail with "no workflows found".
+# Every entry groups its updates, so one ecosystem in one directory opens one
+# weekly PR instead of one PR per package.
+# NOTE: no `github-actions` entry. Workflow files are org canon, kept
+# byte-identical across repos and updated deliberately in canon passes, never
+# by a per-repo bot (repository-and-services.md).
 version: 2
 updates:
   - package-ecosystem: gomod
@@ -17,13 +20,39 @@ updates:
     groups:
       python-dependencies: { patterns: ["*"] }
 
+  # Node API services (NestJS); one entry per service directory:
+  - package-ecosystem: npm
+    directory: /api/<node-service>     # e.g. /api/uploads
+    schedule: { interval: weekly }
+    groups:
+      npm-dependencies: { patterns: ["*"] }
+    ignore:
+      # Move these majors deliberately, together with the test toolchain.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+      # @types/node tracks the runtime major (Node 24 in .nvmrc/Dockerfile).
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+
   - package-ecosystem: npm
     directory: /web
     schedule: { interval: weekly }
     groups:
       npm-dependencies: { patterns: ["*"] }
+    ignore:
+      # eslint and typescript majors break eslint-config-next's
+      # typescript-eslint toolchain; move them when Next.js supports them.
+      - dependency-name: eslint
+        update-types: ["version-update:semver-major"]
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+      # @types/node tracks the runtime major (Node 24 in .nvmrc/Dockerfile).
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   # Only if the repo has a Flutter app with a pubspec.yaml:
   - package-ecosystem: pub
     directory: /mobile/flutter
     schedule: { interval: weekly }
+    groups:
+      pub-dependencies: { patterns: ["*"] }

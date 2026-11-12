@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - The audit requires a repo-specific `service.datadog.yaml` on every active CueLABS product; the root-file table lists its required fields (#198).
 - The web standard ignores the `web/AGENTS.md` that `next dev` writes (#198).
 
+### Fixed
+
+- The dependabot template groups `pub` updates, carries the npm major-version `ignore` blocks for `/web` and Node API entries, and states why there is no `github-actions` entry (#198).
+
 ## [2.6.0] - 2026-11-05
 
 ### Added

@@ -122,8 +122,11 @@ entry with the real number.
 
 `dependabot.yml` is the one config that is **not** identical across repos: it
 lists one `updates` entry per real manifest directory (`gomod /api/common`,
-`pip /api/<python-service>`, `npm /web`, `pub /mobile/flutter`), grouped per
-ecosystem, and **must not** point at dead/deprecated directories. It has **no**
+`pip /api/<python-service>`, `npm /api/<node-service>`, `npm /web`,
+`pub /mobile/flutter`), each with a `groups` block so one ecosystem opens one
+weekly PR, and **must not** point at dead/deprecated directories. The `npm`
+entries carry the `ignore` block for `typescript` and `@types/node` majors, and
+`/web` also ignores `eslint` majors (`cloud-and-ci.md`, web dep alignment). It has **no**
 `github-actions` entry — CI workflow conventions and shared jobs are org canon
 kept byte-identical across repos and updated deliberately in canon passes,
 never by a per-repo bot. Product files may add only explicitly ratified
