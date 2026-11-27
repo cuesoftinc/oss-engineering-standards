@@ -88,6 +88,7 @@ including the compose-driven, mobile-ready `Makefile`, is identical across repos
 | `Makefile` | Compose-driven standard targets plus guarded `mobile-goldens`; identical across repos |
 | `.env.example` | Root env template: per-service sections, dev-safe defaults, `NEXT_PUBLIC_*` block |
 | `.gitattributes` | Forces LF on `*.sh`, which run inside Linux containers |
+| `web/src/instrumentation.ts` | Active web surface only: server `console` as JSON lines on stdout with `severity` and `message` on Cloud Run, filtered at `LOG_LEVEL`; with its test `web/src/instrumentation.test.ts` |
 | `.gitbook.yaml` | GitBook Git Sync for the space: `root: ./docs/`, `overview.md` as the readme, `SUMMARY.md` as the nav |
 | `gitbook-docs.yaml` | GitBook site-wide Git Sync: names the site and maps its one space (key = product slug, P-01) to the repository root. Seeded from the template; never change `key` afterwards, or GitBook creates a new space |
 | `service.datadog.yaml` | **Repo-specific.** Datadog service catalog (`apiVersion: v3`): one `kind: service` document per deployed service and one `kind: datastore` per datastore. Each carries `metadata.name` (`<product>-<component>`), `metadata.owner`, `metadata.tags` (`app:<product>`, `component:<name>`), `metadata.contacts`, `metadata.links` (repository at least) and `spec.lifecycle`, `spec.tier`, `spec.type` and `spec.languages` |
@@ -98,7 +99,7 @@ including the compose-driven, mobile-ready `Makefile`, is identical across repos
 **What's in `assets/templates/`:** ready-to-copy `LICENSE`, `CODEOWNERS`,
 `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `PULL_REQUEST_TEMPLATE.md`,
 `ISSUE_TEMPLATE/*`, `Makefile`, a `dependabot.example.yml`, an `env.example`,
-`prettierignore.web`,
+`prettierignore.web`, `instrumentation.web.ts`, `instrumentation.web.test.ts`,
 Docker templates (`Dockerfile.go`, `Dockerfile.web`, `Dockerfile.python`,
 `Dockerfile.node`, `docker-compose.example.yml`, per-context `dockerignore.*`),
 the standard-form
@@ -111,7 +112,9 @@ by accident — when adopting them, copy `assets/templates/gitignore` → `.giti
 `assets/templates/gitbook-docs.yaml` → `gitbook-docs.yaml` (`apply` fills
 `{{product}}` from the manifest name and `{{Product}}` with a title-cased guess;
 correct the display name if it differs); copy `assets/templates/prettierignore.web` →
-`web/.prettierignore`.
+`web/.prettierignore`; copy `assets/templates/instrumentation.web.ts` →
+`web/src/instrumentation.ts` and `assets/templates/instrumentation.web.test.ts` →
+`web/src/instrumentation.test.ts`.
 
 **Changelog discipline**: `CHANGELOG.md` follows Keep a Changelog strictly —
 ONE `### <Bucket>` heading per bucket per section, in canonical order (Added,

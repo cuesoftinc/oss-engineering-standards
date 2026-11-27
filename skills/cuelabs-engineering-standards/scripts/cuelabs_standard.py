@@ -46,6 +46,12 @@ CUELABS_APPLICATION_TEMPLATE_TARGETS = {
     "gitbook-docs.yaml": "gitbook-docs.yaml",
 }
 
+# Shared files every active CueLABS web surface carries byte for byte.
+CUELABS_WEB_TEMPLATE_TARGETS = {
+    "instrumentation.web.ts": "web/src/instrumentation.ts",
+    "instrumentation.web.test.ts": "web/src/instrumentation.test.ts",
+}
+
 # Seeded targets are copied when missing but never byte-compared afterwards:
 # the canon fixes their variable NAMES and section format, while values and
 # product-specific sections legitimately diverge per repository.
@@ -788,6 +794,8 @@ def required_targets(profile: str, surfaces: dict[str, str]) -> dict[str, str]:
     )
     if profile == "cuelabs" and has_active_application(surfaces):
         targets.update(CUELABS_APPLICATION_TEMPLATE_TARGETS)
+    if profile == "cuelabs" and surfaces.get("web") == "active":
+        targets.update(CUELABS_WEB_TEMPLATE_TARGETS)
     return targets
 
 

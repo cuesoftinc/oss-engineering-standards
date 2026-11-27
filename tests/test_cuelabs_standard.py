@@ -588,6 +588,45 @@ class StandardsCliTest(unittest.TestCase):
 
         self.assertEqual(web.read_bytes(), core.read_bytes())
 
+    def test_web_skill_bundles_canonical_server_logging(self) -> None:
+        for name in ("instrumentation.web.ts", "instrumentation.web.test.ts"):
+            core = (
+                ROOT
+                / "skills"
+                / "cuelabs-engineering-standards"
+                / "assets"
+                / "templates"
+                / name
+            )
+            web = (
+                ROOT / "skills" / "cuelabs-web-standard" / "assets" / "templates" / name
+            )
+
+            self.assertEqual(web.read_bytes(), core.read_bytes(), name)
+
+    def test_active_web_surface_carries_the_server_logging_files(self) -> None:
+        self.write_manifest("  web: active\n")
+        self.copy_required_templates(application=True)
+        (self.repo / ".github").mkdir(exist_ok=True)
+        (self.repo / ".github" / "dependabot.yml").write_text("version: 2\n")
+        (self.repo / "service.datadog.yaml").write_text("apiVersion: v3\n")
+        self.assertTrue(standard.inspect(self.repo).conforming)
+
+        (self.repo / "web" / "src" / "instrumentation.ts").write_text("export {};\n")
+        (self.repo / "web" / "src" / "instrumentation.test.ts").unlink()
+        audit = standard.inspect(self.repo)
+
+        self.assertIn("web/src/instrumentation.ts", audit.drifted_shared_files)
+        self.assertIn("web/src/instrumentation.test.ts", audit.missing_shared_files)
+        self.assertFalse(audit.conforming)
+
+    def test_backend_only_product_needs_no_web_logging_files(self) -> None:
+        targets = standard.required_targets(
+            "cuelabs", {"web": "absent", "go-api": "active"}
+        )
+
+        self.assertNotIn("instrumentation.web.ts", targets)
+
     def test_nested_backend_status_activates_application_requirements(self) -> None:
         self.write_manifest("  backend:\n    go: active\n")
         self.copy_required_templates(application=True)
