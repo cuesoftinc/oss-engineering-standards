@@ -19,7 +19,11 @@ receiver for the whole ecosystem — see "Shared ecosystem services" in the
 engineering skill's `organization-policy.md`; every other product exports to
 it through configuration only and never runs its own receiver. Export is
 env-gated: no `OTEL_EXPORTER_OTLP_ENDPOINT` → SDK no-ops. JSON stdout logging
-remains alongside (Cloud Run native). Operational telemetry ≠ product
+remains alongside (Cloud Run native): one line per entry carrying `severity`
+(`DEBUG`, `INFO`, `WARNING`, `ERROR`) and `message`, filtered at `LOG_LEVEL`.
+Go renames slog's `level` and `msg` keys; Python services start uvicorn with
+`log_config=None` so its own lines use the JSON handler; web uses the web
+skill's server-logging template. Operational telemetry ≠ product
 analytics events (the shared `/v1/events` API) — separate pipelines, never
 mixed. Env: `OTEL_SERVICE_NAME`, `OTEL_EXPORTER_OTLP_ENDPOINT`,
 `OTEL_EXPORTER_OTLP_HEADERS`, `OTEL_RESOURCE_ATTRIBUTES`.

@@ -34,6 +34,15 @@ Values marked *(product decision)* are recorded in the product's
 - **`web/.gitignore` ignores `AGENTS.md`**: `next dev` (Next 16) writes
   `web/AGENTS.md` on every run. It is generated, never committed; agent
   guidance for the repository lives at the root, not in `web/`.
+- **Server logging** — ONE byte-identical `web/src/instrumentation.ts` and
+  `web/src/instrumentation.test.ts`, sourced from this skill's bundled
+  [instrumentation.web.ts](../assets/templates/instrumentation.web.ts) and
+  [instrumentation.web.test.ts](../assets/templates/instrumentation.web.test.ts)
+  and checked by the engineering audit. On Cloud Run (`K_SERVICE` set) the
+  Node.js server's `console` writes one JSON line per call to stdout with
+  `severity` and `message`, an Error's stack folded into the message,
+  filtered at `LOG_LEVEL` (`info` when unset); dev, tests and the edge
+  runtime keep the plain console.
 - **Vitest** — canonical config: `@vitejs/plugin-react` +
   `vite-tsconfig-paths` + root `./vitest.setup.ts`, jsdom default.
   Repo-specific needs stay as COMMENTED, labeled blocks (for example leaving
